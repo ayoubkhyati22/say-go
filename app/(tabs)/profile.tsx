@@ -9,21 +9,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-import { 
-  Settings, 
-  CreditCard, 
-  ChevronRight, 
-  Bell, 
-  Shield, 
-  HelpCircle, 
-  LogOut, 
-  MapPin, 
-  User as UserIcon,
-  Leaf,
-  Moon,
-  Sun,
-  Monitor
-} from 'lucide-react-native';
+import { Settings, CreditCard, ChevronRight, Bell, Shield, CircleHelp as HelpCircle, LogOut, MapPin, User as UserIcon, Leaf, Moon, Sun, Monitor } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import Animated from 'react-native-reanimated';
 

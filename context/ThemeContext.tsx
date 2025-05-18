@@ -1,6 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useColorScheme, AppState, AppStateStatus, Appearance } from 'react-native';
-import Animated, { withTiming, useAnimatedStyle, interpolateColor } from 'react-native-reanimated';
+import { useColorScheme, AppState, AppStateStatus, Appearance, Platform } from 'react-native';
+import Animated, { 
+  withTiming, 
+  useAnimatedStyle, 
+  interpolateColor,
+  useSharedValue 
+} from 'react-native-reanimated';
 import { lightTheme, darkTheme } from '@/styles/theme';
 
 type ThemeType = 'light' | 'dark' | 'system';
@@ -17,7 +22,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemColorScheme = useColorScheme();
   const [theme, setTheme] = useState<ThemeType>('system');
-  const [progress] = useState(new Animated.SharedValue(systemColorScheme === 'dark' ? 1 : 0));
+  const progress = useSharedValue(systemColorScheme === 'dark' ? 1 : 0);
 
   const isDarkMode = 
     theme === 'system' 

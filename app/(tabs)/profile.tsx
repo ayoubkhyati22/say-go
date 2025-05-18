@@ -5,9 +5,9 @@ import {
   Text, 
   SafeAreaView, 
   ScrollView, 
-  TouchableOpacity, 
+  TouchableOpacity,
   StatusBar,
-  Image
+  Platform,
 } from 'react-native';
 import { 
   Settings, 
@@ -19,54 +19,66 @@ import {
   LogOut, 
   MapPin, 
   User as UserIcon,
-  Leaf
+  Leaf,
+  Moon,
+  Sun,
+  Monitor
 } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
+import Animated from 'react-native-reanimated';
 
 export default function ProfileScreen() {
-  // Mock user data
+  const { theme, setTheme, isDarkMode } = useTheme();
+  
   const user = {
     name: 'John Doe',
     email: 'john.doe@example.com',
-    profileImage: null, // In a real app, this would be a URI
+    profileImage: null,
     totalSaved: '32.4 kg',
     savedTrips: 12
   };
+
+  const themeOptions = [
+    { id: 'light', title: 'Light', icon: Sun },
+    { id: 'dark', title: 'Dark', icon: Moon },
+    { id: 'system', title: 'System', icon: Monitor },
+  ] as const;
 
   const menuItems = [
     {
       id: 'account',
       title: 'Account Settings',
-      icon: <UserIcon size={20} color="#246BFD" />,
+      icon: <UserIcon size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
       rightContent: null,
     },
     {
       id: 'payment',
       title: 'Payment Methods',
-      icon: <CreditCard size={20} color="#246BFD" />,
+      icon: <CreditCard size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
       rightContent: <Text style={styles.itemInfo}>Mastercard •••• 4778</Text>,
     },
     {
       id: 'notifications',
       title: 'Notifications',
-      icon: <Bell size={20} color="#246BFD" />,
+      icon: <Bell size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
       rightContent: null,
     },
     {
       id: 'location',
       title: 'Location',
-      icon: <MapPin size={20} color="#246BFD" />,
+      icon: <MapPin size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
       rightContent: <Text style={styles.itemInfo}>Casablanca</Text>,
     },
     {
       id: 'security',
       title: 'Security',
-      icon: <Shield size={20} color="#246BFD" />,
+      icon: <Shield size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
       rightContent: null,
     },
     {
       id: 'help',
       title: 'Help & Support',
-      icon: <HelpCircle size={20} color="#246BFD" />,
+      icon: <HelpCircle size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
       rightContent: null,
     },
     {
@@ -78,38 +90,29 @@ export default function ProfileScreen() {
     },
   ];
 
-  const handleMenuItemPress = (id: string) => {
-    console.log(`Menu item pressed: ${id}`);
-    // Handle navigation or actions based on the menu item
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, isDarkMode ? styles.darkBackground : styles.lightBackground]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
       
-      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={[styles.headerTitle, isDarkMode ? styles.darkText : styles.lightText]}>Profile</Text>
         <TouchableOpacity style={styles.settingsButton}>
-          <Settings size={24} color="#1A1A1A" />
+          <Settings size={24} color={isDarkMode ? '#F3F4F6' : '#1A1A1A'} />
         </TouchableOpacity>
       </View>
       
       <ScrollView style={styles.content}>
-        {/* Profile Info */}
-        <View style={styles.profileSection}>
+        <View style={[styles.profileSection, isDarkMode ? styles.darkCard : styles.lightCard]}>
           <View style={styles.profileInfo}>
-            {user.profileImage ? (
-              <Image source={{ uri: user.profileImage }} style={styles.profileImage} />
-            ) : (
-              <View style={styles.profileImagePlaceholder}>
-                <Text style={styles.profileInitials}>
-                  {user.name.split(' ').map(n => n[0]).join('')}
-                </Text>
-              </View>
-            )}
+            <View style={styles.profileImagePlaceholder}>
+              <Text style={styles.profileInitials}>
+                {user.name.split(' ').map(n => n[0]).join('')}
+              </Text>
+            </View>
             <View style={styles.profileDetails}>
-              <Text style={styles.profileName}>{user.name}</Text>
+              <Text style={[styles.profileName, isDarkMode ? styles.darkText : styles.lightText]}>
+                {user.name}
+              </Text>
               <Text style={styles.profileEmail}>{user.email}</Text>
             </View>
           </View>
@@ -118,12 +121,47 @@ export default function ProfileScreen() {
             <Text style={styles.editProfileText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Theme Selection */}
+        <View style={[styles.themeSection, isDarkMode ? styles.darkCard : styles.lightCard]}>
+          <Text style={[styles.themeSectionTitle, isDarkMode ? styles.darkText : styles.lightText]}>
+            Appearance
+          </Text>
+          <View style={styles.themeOptions}>
+            {themeOptions.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={[
+                  styles.themeOption,
+                  theme === option.id && styles.themeOptionActive,
+                  isDarkMode && styles.darkThemeOption
+                ]}
+                onPress={() => setTheme(option.id)}
+              >
+                <option.icon
+                  size={20}
+                  color={theme === option.id ? (isDarkMode ? '#60A5FA' : '#246BFD') : (isDarkMode ? '#9CA3AF' : '#6B7280')}
+                />
+                <Text
+                  style={[
+                    styles.themeOptionText,
+                    theme === option.id && styles.themeOptionTextActive,
+                    isDarkMode && styles.darkThemeOptionText
+                  ]}
+                >
+                  {option.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
         
-        {/* CO2 Stats */}
-        <View style={styles.statsCard}>
+        <View style={[styles.statsCard, isDarkMode ? styles.darkCard : styles.lightCard]}>
           <View style={styles.statsHeader}>
             <Leaf size={20} color="#10B981" />
-            <Text style={styles.statsTitle}>Your CO2 Impact</Text>
+            <Text style={[styles.statsTitle, isDarkMode ? styles.darkText : styles.lightText]}>
+              Your CO2 Impact
+            </Text>
           </View>
           
           <View style={styles.statsContent}>
@@ -141,20 +179,21 @@ export default function ProfileScreen() {
           </View>
         </View>
         
-        {/* Menu */}
-        <View style={styles.menuSection}>
+        <View style={[styles.menuSection, isDarkMode ? styles.darkCard : styles.lightCard]}>
           {menuItems.map((item) => (
             <TouchableOpacity 
               key={item.id}
-              style={styles.menuItem}
-              onPress={() => handleMenuItemPress(item.id)}
+              style={[
+                styles.menuItem,
+                item.id !== menuItems[menuItems.length - 1].id && styles.menuItemBorder
+              ]}
             >
               <View style={styles.menuItemLeft}>
                 {item.icon}
                 <Text 
                   style={[
                     styles.menuItemTitle,
-                    item.danger ? styles.dangerText : null
+                    item.danger ? styles.dangerText : isDarkMode ? styles.darkText : styles.lightText
                   ]}
                 >
                   {item.title}
@@ -163,19 +202,17 @@ export default function ProfileScreen() {
               
               <View style={styles.menuItemRight}>
                 {item.rightContent}
-                <ChevronRight size={20} color="#9CA3AF" />
+                <ChevronRight size={20} color={isDarkMode ? '#9CA3AF' : '#9CA3AF'} />
               </View>
             </TouchableOpacity>
           ))}
         </View>
         
-        {/* App Info */}
         <View style={styles.appInfo}>
           <Text style={styles.appVersion}>Carbo v1.2.3</Text>
           <Text style={styles.appCopyright}>© 2022 Carbo Inc.</Text>
         </View>
         
-        {/* Add bottom padding */}
         <View style={{ height: 80 }} />
       </ScrollView>
     </SafeAreaView>
@@ -185,7 +222,24 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  lightBackground: {
     backgroundColor: '#F3F4F6',
+  },
+  darkBackground: {
+    backgroundColor: '#121212',
+  },
+  lightText: {
+    color: '#111827',
+  },
+  darkText: {
+    color: '#F3F4F6',
+  },
+  lightCard: {
+    backgroundColor: '#FFFFFF',
+  },
+  darkCard: {
+    backgroundColor: '#1E1E1E',
   },
   header: {
     flexDirection: 'row',
@@ -193,14 +247,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#1A1A1A',
     fontFamily: 'Inter-Bold',
   },
   settingsButton: {
@@ -210,7 +261,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileSection: {
-    backgroundColor: 'white',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
@@ -219,12 +269,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-  },
-  profileImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    marginRight: 16,
   },
   profileImagePlaceholder: {
     width: 70,
@@ -237,19 +281,16 @@ const styles = StyleSheet.create({
   },
   profileInitials: {
     fontSize: 24,
-    fontWeight: '600',
-    color: '#4B5563',
     fontFamily: 'Inter-SemiBold',
+    color: '#4B5563',
   },
   profileDetails: {
     flex: 1,
   },
   profileName: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
     fontFamily: 'Inter-SemiBold',
+    marginBottom: 4,
   },
   profileEmail: {
     fontSize: 14,
@@ -264,12 +305,53 @@ const styles = StyleSheet.create({
   },
   editProfileText: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#246BFD',
     fontFamily: 'Inter-Medium',
+    color: '#246BFD',
+  },
+  themeSection: {
+    padding: 16,
+    marginTop: 16,
+    marginHorizontal: 16,
+    borderRadius: 12,
+  },
+  themeSectionTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    marginBottom: 16,
+  },
+  themeOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  themeOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
+    marginHorizontal: 4,
+  },
+  darkThemeOption: {
+    backgroundColor: '#2D2D2D',
+  },
+  themeOptionActive: {
+    backgroundColor: '#EFF6FF',
+  },
+  themeOptionText: {
+    marginLeft: 8,
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#6B7280',
+  },
+  darkThemeOptionText: {
+    color: '#9CA3AF',
+  },
+  themeOptionTextActive: {
+    color: '#246BFD',
   },
   statsCard: {
-    backgroundColor: 'white',
     margin: 16,
     borderRadius: 12,
     overflow: 'hidden',
@@ -288,10 +370,8 @@ const styles = StyleSheet.create({
   },
   statsTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginLeft: 12,
     fontFamily: 'Inter-SemiBold',
+    marginLeft: 12,
   },
   statsContent: {
     flexDirection: 'row',
@@ -303,10 +383,9 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Inter-Bold',
     color: '#246BFD',
     marginBottom: 4,
-    fontFamily: 'Inter-Bold',
   },
   statLabel: {
     fontSize: 14,
@@ -336,6 +415,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 16,
+  },
+  menuItemBorder: {
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
@@ -345,10 +426,8 @@ const styles = StyleSheet.create({
   },
   menuItemTitle: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#1A1A1A',
-    marginLeft: 16,
     fontFamily: 'Inter-Medium',
+    marginLeft: 16,
   },
   dangerText: {
     color: '#FF4D4F',

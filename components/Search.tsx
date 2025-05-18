@@ -6,11 +6,17 @@ import {
   TouchableOpacity, 
   ActivityIndicator,
   Animated,
-  Text
+  Text,
+  Platform
 } from 'react-native';
 import { Mic, Search as SearchIcon, X } from 'lucide-react-native';
-import Voice, { SpeechResultsEvent, SpeechErrorEvent } from '@react-native-voice/voice';
 import { VoiceWaveform } from './VoiceWaveform';
+
+// Only import Voice on native platforms
+let Voice: any;
+if (Platform.OS !== 'web') {
+  Voice = require('@react-native-voice/voice').default;
+}
 
 interface SearchProps {
   onSearch: (text: string) => void;
@@ -26,17 +32,19 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   const buttonScale = useRef(new Animated.Value(1)).current;
   
   useEffect(() => {
-    // Initialize voice recognition
-    Voice.onSpeechResults = onSpeechResults;
-    Voice.onSpeechError = onSpeechError;
-    Voice.onSpeechEnd = onSpeechEnd;
+    // Only initialize voice recognition on native platforms
+    if (Platform.OS !== 'web' && Voice) {
+      Voice.onSpeechResults = onSpeechResults;
+      Voice.onSpeechError = onSpeechError;
+      Voice.onSpeechEnd = onSpeechEnd;
 
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners);
-    };
+      return () => {
+        Voice.destroy().then(Voice.removeAllListeners);
+      };
+    }
   }, []);
 
-  const onSpeechResults = (e: SpeechResultsEvent) => {
+  const onSpeechResults = (e: any) => {
     if (e.value && e.value.length > 0) {
       const recognizedText = e.value[0];
       setSearchText(recognizedText);
@@ -46,7 +54,7 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
     }
   };
 
-  const onSpeechError = (e: SpeechErrorEvent) => {
+  const onSpeechError = (e: any) => {
     setRecordingError('Voice recognition failed. Please try again.');
     stopRecording();
   };
@@ -56,6 +64,11 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   };
 
   const startRecording = async () => {
+    if (Platform.OS === 'web') {
+      setRecordingError('Voice recognition is not available on web.');
+      return;
+    }
+
     setRecordingError(null);
     
     try {
@@ -92,6 +105,8 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   };
 
   const stopRecording = async () => {
+    if (Platform.OS === 'web') return;
+
     try {
       await Voice.stop();
     } catch (e) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Home, Search as SearchIcon, Plus, Calendar, User, Telescope } from 'lucide-react-native';
+import { Chrome as Home, Search as SearchIcon, Plus, Calendar, User, Telescope } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 
 export default function TabLayout() {

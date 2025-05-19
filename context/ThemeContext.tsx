@@ -14,6 +14,7 @@ type ThemeContextType = {
   theme: ThemeType;
   isDarkMode: boolean;
   setTheme: (theme: ThemeType) => void;
+  colors: typeof lightTheme;
   animatedColor: (lightColor: string, darkColor: string) => any;
 };
 
@@ -28,6 +29,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     theme === 'system' 
       ? systemColorScheme === 'dark'
       : theme === 'dark';
+
+  const colors = isDarkMode ? darkTheme : lightTheme;
 
   useEffect(() => {
     progress.value = withTiming(isDarkMode ? 1 : 0, {
@@ -61,7 +64,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, isDarkMode, setTheme, animatedColor }}>
+    <ThemeContext.Provider value={{ theme, isDarkMode, setTheme, colors, animatedColor }}>
       {children}
     </ThemeContext.Provider>
   );

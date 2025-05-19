@@ -11,6 +11,15 @@ export const lightTheme = {
   error: '#EF4444',
   success: '#10B981',
   warning: '#F59E0B',
+  tabBar: {
+    background: '#FFFFFF',
+    active: '#246BFD',
+    inactive: '#9CA3AF',
+  },
+  header: {
+    background: '#1E3A8A',
+    text: '#FFFFFF',
+  }
 };
 
 export const darkTheme = {
@@ -24,6 +33,15 @@ export const darkTheme = {
   error: '#EF4444',
   success: '#10B981',
   warning: '#F59E0B',
+  tabBar: {
+    background: '#1E1E1E',
+    active: '#60A5FA',
+    inactive: '#6B7280',
+  },
+  header: {
+    background: '#1E1E1E',
+    text: '#F3F4F6',
+  }
 };
 
 export const createThemedStyles = (theme: typeof lightTheme) =>

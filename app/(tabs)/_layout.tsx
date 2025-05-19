@@ -2,15 +2,24 @@ import React from 'react';
 import { StyleSheet, View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Home, Search as SearchIcon, Plus, Calendar, User, Telescope } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function TabLayout() {
+  const { colors, isDarkMode } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          { 
+            backgroundColor: colors.tabBar.background,
+            borderTopColor: colors.border 
+          }
+        ],
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#246BFD',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: colors.tabBar.active,
+        tabBarInactiveTintColor: colors.tabBar.inactive,
         headerShown: false,
       }}
     >
@@ -57,7 +66,6 @@ export default function TabLayout() {
           tabBarLabelStyle: styles.tabBarLabel,
         }}
       />
-
     </Tabs>
   );
 }
@@ -65,25 +73,11 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     height: 70,
-    backgroundColor: 'white',
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
   },
   tabBarLabel: {
     fontSize: 12,
     fontFamily: 'Inter-Regular',
     marginBottom: 5,
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 30,
-    alignSelf: 'center',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#246BFD',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
   },
 });

@@ -15,6 +15,7 @@ import { JourneyCard } from '../../components/JourneyCard';
 import { ChevronLeft, Calendar, MapPin } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
+import { JourneyDetails } from '@/types';
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -35,6 +36,36 @@ export default function SearchScreen() {
       departureStation: { name: 'Casa Voyageurs', code: 'CVG' },
       arrivalStation: { name: 'Tanger Ville', code: 'TNV' },
       price: 75,
+      currency: 'DH',
+      trainNumber: 'A102',
+      isSaved: false,
+      co2Emission: '3.47',
+      distance: '1.7 km'
+    },
+    {
+      gender: 'ctm',
+      id: '1',
+      departureTime: '08:30',
+      arrivalTime: '10:45',
+      duration: '2h 15m',
+      departureStation: { name: 'Casa Voyageurs', code: 'CVG' },
+      arrivalStation: { name: 'Tanger Ville', code: 'TNV' },
+      price: 180,
+      currency: 'DH',
+      trainNumber: 'A102',
+      isSaved: false,
+      co2Emission: '3.47',
+      distance: '1.7 km'
+    },
+    {
+      gender: 'oncf',
+      id: '1',
+      departureTime: '08:30',
+      arrivalTime: '10:45',
+      duration: '2h 15m',
+      departureStation: { name: 'Casa Voyageurs', code: 'CVG' },
+      arrivalStation: { name: 'Tanger Ville', code: 'TNV' },
+      price: 210,
       currency: 'DH',
       trainNumber: 'A102',
       isSaved: false,

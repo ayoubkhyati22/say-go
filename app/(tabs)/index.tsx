@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, Text, SafeAreaView, ScrollView, StatusBar, Image } from 'react-native';
 import { Search } from '../../components/Search';
 import { RecentSearches } from '../../components/RecentSearches';
@@ -11,6 +11,32 @@ export default function HomeScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { colors, isDarkMode } = useTheme();
+
+  // Pre-load all image assets
+  const images = useMemo(() => {
+    return {
+      royaumeMaroc: {
+        light: require('../../assets/images/royaume-maroc.svg'),
+        dark: require('../../assets/images/royaume-maroc.svg')
+      },
+      oncf: {
+        light: require('../../assets/images/oncf.svg'),
+        dark: require('../../assets/images/oncf-dark.svg')
+      },
+      ctm: {
+        light: require('../../assets/images/ctm.svg'),
+        dark: require('../../assets/images/ctm-dark.svg')
+      },
+      booking: {
+        light: require('../../assets/images/booking.svg'),
+        dark: require('../../assets/images/booking-dark.svg')
+      },
+      airbnb: {
+        light: require('../../assets/images/airbnb.svg'),
+        dark: require('../../assets/images/airbnb-dark.svg')
+      }
+    };
+  }, []);
 
   const [journeys] = useState<Array<JourneyDetails & { isSaved: boolean }>>([
     {
@@ -49,7 +75,7 @@ export default function HomeScreen() {
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.header.background} />
 
       <View style={[styles.header, { backgroundColor: colors.header.background }]}>
-        <Image source={require('../../assets/images/royaume-maroc.svg')} />
+        <Image source={isDarkMode ? images.royaumeMaroc.dark : images.royaumeMaroc.light} />
 
         <View style={styles.headerContent}>
           <Text style={[styles.headerTitle, { color: colors.header.text }]}>SayGo</Text>
@@ -69,22 +95,22 @@ export default function HomeScreen() {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Partners</Text>
           <View style={styles.partnersContainer}>
             <Image
-              source={require('../../assets/images/oncf.svg')}
+              source={isDarkMode ? images.oncf.dark : images.oncf.light}
               style={styles.partnerLogo}
               resizeMode="contain"
             />
             <Image
-              source={require('../../assets/images/ctm.svg')}
+              source={isDarkMode ? images.ctm.dark : images.ctm.light}
               style={styles.partnerLogo}
               resizeMode="contain"
             />
             <Image
-              source={require('../../assets/images/booking.svg')}
+              source={isDarkMode ? images.booking.dark : images.booking.light}
               style={styles.partnerLogo}
               resizeMode="contain"
             />
             <Image
-              source={require('../../assets/images/airbnb.svg')}
+              source={isDarkMode ? images.airbnb.dark : images.airbnb.light}
               style={styles.partnerLogo}
               resizeMode="contain"
             />

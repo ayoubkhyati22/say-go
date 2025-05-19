@@ -10,7 +10,7 @@ import {
   Image,
 } from 'react-native';
 import { Search } from '../../components/Search';
-import { MapPin, Calendar, Star, Navigation2, ChevronRight, Leaf, Train } from 'lucide-react-native';
+import { MapPin, Calendar, Star, Navigation2, ChevronRight, Leaf, Brain as Train } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 

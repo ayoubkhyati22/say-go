@@ -5,6 +5,7 @@ import { RecentSearches } from '../../components/RecentSearches';
 import { JourneyCard } from '../../components/JourneyCard';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
+import { JourneyDetails } from '@/types';
 
 export default function HomeScreen() {
   const router = useRouter();

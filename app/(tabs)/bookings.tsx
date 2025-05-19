@@ -8,11 +8,10 @@ import {
   TouchableOpacity, 
   StatusBar 
 } from 'react-native';
-import { JourneyCard } from '../../components/JourneyCard';
 import { Calendar, ArrowRight, Clock, Car, Train } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useTheme } from '@/context/ThemeContext';
 
-// Types from your existing components
 interface Station {
   name: string;
   code: string;
@@ -43,9 +42,9 @@ interface Trip {
 
 export default function BookingsScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('unpaid'); // 'unpaid' or 'paid'
+  const [activeTab, setActiveTab] = useState('unpaid');
+  const { colors, isDarkMode } = useTheme();
   
-  // Sample trips data
   const [trips] = useState<Trip[]>([
     {
       id: '1',
@@ -118,27 +117,25 @@ export default function BookingsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Trips</Text>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>My Trips</Text>
       </View>
       
-      {/* Tabs */}
-      <View style={styles.tabContainer}>
+      <View style={[styles.tabContainer, { backgroundColor: colors.card }]}>
         <TouchableOpacity 
           style={[
             styles.tabButton, 
-            activeTab === 'unpaid' ? styles.activeTabButton : null
+            activeTab === 'unpaid' && [styles.activeTabButton, { borderBottomColor: colors.primary }]
           ]}
           onPress={() => setActiveTab('unpaid')}
         >
           <Text 
             style={[
               styles.tabText, 
-              activeTab === 'unpaid' ? styles.activeTabText : null
+              { color: activeTab === 'unpaid' ? colors.primary : colors.secondaryText }
             ]}
           >
             Unpaid
@@ -148,14 +145,14 @@ export default function BookingsScreen() {
         <TouchableOpacity 
           style={[
             styles.tabButton, 
-            activeTab === 'paid' ? styles.activeTabButton : null
+            activeTab === 'paid' && [styles.activeTabButton, { borderBottomColor: colors.primary }]
           ]}
           onPress={() => setActiveTab('paid')}
         >
           <Text 
             style={[
               styles.tabText, 
-              activeTab === 'paid' ? styles.activeTabText : null
+              { color: activeTab === 'paid' ? colors.primary : colors.secondaryText }
             ]}
           >
             Paid
@@ -163,66 +160,62 @@ export default function BookingsScreen() {
         </TouchableOpacity>
       </View>
       
-      {/* Trip List */}
       <ScrollView style={styles.content}>
         {filteredTrips.length > 0 ? (
           <View style={styles.tripList}>
             {filteredTrips.map((trip) => (
               <TouchableOpacity 
                 key={trip.id}
-                style={styles.tripCard}
+                style={[styles.tripCard, { backgroundColor: colors.card }]}
                 onPress={() => navigateToTripDetails(trip.id)}
               >
-                {/* Trip Card Header */}
-                <View style={styles.tripCardHeader}>
+                <View style={[styles.tripCardHeader, { borderBottomColor: colors.border }]}>
                   <View style={styles.transportIcon}>
                     {trip.journeyDetails.transportType === 'car' ? (
-                      <Car size={18} color="#246BFD" />
+                      <Car size={18} color={colors.primary} />
                     ) : (
-                      <Train size={18} color="#246BFD" />
+                      <Train size={18} color={colors.primary} />
                     )}
                   </View>
-                  <Text style={styles.tripNumber}>Trip #{trip.journeyDetails.id}</Text>
+                  <Text style={[styles.tripNumber, { color: colors.text }]}>Trip #{trip.journeyDetails.id}</Text>
                   <View style={styles.dateContainer}>
-                    <Calendar size={14} color="#6B7280" style={styles.dateIcon} />
-                    <Text style={styles.dateText}>{trip.journeyDetails.date}</Text>
+                    <Calendar size={14} color={colors.secondaryText} style={styles.dateIcon} />
+                    <Text style={[styles.dateText, { color: colors.secondaryText }]}>{trip.journeyDetails.date}</Text>
                   </View>
                 </View>
                 
-                {/* Trip Card Content */}
                 <View style={styles.tripCardContent}>
                   <View style={styles.stationContainer}>
                     <View style={styles.timeContainer}>
-                      <Text style={styles.timeText}>{trip.journeyDetails.departureTime}</Text>
-                      <View style={styles.verticalLine} />
-                      <Text style={styles.timeText}>{trip.journeyDetails.arrivalTime}</Text>
+                      <Text style={[styles.timeText, { color: colors.text }]}>{trip.journeyDetails.departureTime}</Text>
+                      <View style={[styles.verticalLine, { backgroundColor: colors.border }]} />
+                      <Text style={[styles.timeText, { color: colors.text }]}>{trip.journeyDetails.arrivalTime}</Text>
                     </View>
                     
                     <View style={styles.stationDetails}>
-                      <Text style={styles.stationName}>{trip.journeyDetails.departureStation.name}</Text>
+                      <Text style={[styles.stationName, { color: colors.text }]}>{trip.journeyDetails.departureStation.name}</Text>
                       <View style={styles.durationContainer}>
-                        <Clock size={14} color="#6B7280" style={styles.durationIcon} />
-                        <Text style={styles.durationText}>{trip.journeyDetails.duration}</Text>
+                        <Clock size={14} color={colors.secondaryText} style={styles.durationIcon} />
+                        <Text style={[styles.durationText, { color: colors.secondaryText }]}>{trip.journeyDetails.duration}</Text>
                       </View>
-                      <Text style={styles.stationName}>{trip.journeyDetails.arrivalStation.name}</Text>
+                      <Text style={[styles.stationName, { color: colors.text }]}>{trip.journeyDetails.arrivalStation.name}</Text>
                     </View>
                   </View>
                   
-                  <View style={styles.tripMetrics}>
+                  <View style={[styles.tripMetrics, { borderTopColor: colors.border }]}>
                     <View style={styles.metricItem}>
-                      <Text style={styles.metricLabel}>CO2</Text>
-                      <Text style={styles.metricValue}>{trip.journeyDetails.co2Emission} g</Text>
+                      <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>CO2</Text>
+                      <Text style={[styles.metricValue, { color: colors.text }]}>{trip.journeyDetails.co2Emission} g</Text>
                     </View>
                     
                     <View style={styles.metricItem}>
-                      <Text style={styles.metricLabel}>Offset</Text>
+                      <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Offset</Text>
                       <Text style={styles.offsetValue}>{trip.journeyDetails.offsetCost}</Text>
                     </View>
                   </View>
                 </View>
                 
-                {/* Trip Card Footer */}
-                <View style={styles.tripCardFooter}>
+                <View style={[styles.tripCardFooter, { borderTopColor: colors.border }]}>
                   <TouchableOpacity 
                     style={[
                       styles.payButton,
@@ -242,10 +235,10 @@ export default function BookingsScreen() {
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>
+            <Text style={[styles.emptyStateTitle, { color: colors.text }]}>
               No {activeTab === 'unpaid' ? 'unpaid' : 'paid'} trips yet
             </Text>
-            <Text style={styles.emptyStateMessage}>
+            <Text style={[styles.emptyStateMessage, { color: colors.secondaryText }]}>
               {activeTab === 'unpaid' 
                 ? 'Plan a journey and track your carbon footprint'
                 : 'Pay for your carbon offsets to see them here'}
@@ -253,7 +246,6 @@ export default function BookingsScreen() {
           </View>
         )}
         
-        {/* Add padding at the bottom for the tab bar */}
         <View style={{ height: 80 }} />
       </ScrollView>
     </SafeAreaView>
@@ -263,24 +255,18 @@ export default function BookingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
   },
   header: {
-    backgroundColor: 'white',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#1A1A1A',
     fontFamily: 'Inter-Bold',
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: 'white',
     paddingHorizontal: 16,
   },
   tabButton: {
@@ -289,18 +275,10 @@ const styles = StyleSheet.create({
   },
   activeTabButton: {
     borderBottomWidth: 2,
-    borderBottomColor: '#246BFD',
   },
   tabText: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#6B7280',
     fontFamily: 'Inter-Medium',
-  },
-  activeTabText: {
-    color: '#246BFD',
-    fontWeight: '600',
-    fontFamily: 'Inter-SemiBold',
   },
   content: {
     flex: 1,
@@ -310,7 +288,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   tripCard: {
-    backgroundColor: 'white',
     borderRadius: 12,
     marginBottom: 16,
     overflow: 'hidden',
@@ -325,7 +302,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   transportIcon: {
     width: 32,
@@ -339,8 +315,6 @@ const styles = StyleSheet.create({
   tripNumber: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
     fontFamily: 'Inter-SemiBold',
   },
   dateContainer: {
@@ -352,7 +326,6 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   tripCardContent: {
@@ -368,14 +341,11 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
     fontFamily: 'Inter-SemiBold',
   },
   verticalLine: {
     width: 1,
     height: 30,
-    backgroundColor: '#D1D5DB',
     marginVertical: 6,
   },
   stationDetails: {
@@ -384,8 +354,6 @@ const styles = StyleSheet.create({
   },
   stationName: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#1A1A1A',
     fontFamily: 'Inter-Medium',
   },
   durationContainer: {
@@ -397,14 +365,12 @@ const styles = StyleSheet.create({
   },
   durationText: {
     fontSize: 14,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   tripMetrics: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
     paddingTop: 16,
   },
   metricItem: {
@@ -412,26 +378,21 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     fontSize: 14,
-    color: '#6B7280',
     marginBottom: 4,
     fontFamily: 'Inter-Regular',
   },
   metricValue: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
     fontFamily: 'Inter-SemiBold',
   },
   offsetValue: {
     fontSize: 16,
-    fontWeight: '600',
     color: '#FF4D4F',
     fontFamily: 'Inter-SemiBold',
   },
   tripCardFooter: {
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
   },
   payButton: {
     backgroundColor: '#FF4D4F',
@@ -446,7 +407,6 @@ const styles = StyleSheet.create({
   },
   payButtonText: {
     fontSize: 16,
-    fontWeight: '600',
     color: 'white',
     fontFamily: 'Inter-SemiBold',
   },
@@ -461,14 +421,11 @@ const styles = StyleSheet.create({
   },
   emptyStateTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
     marginBottom: 8,
     fontFamily: 'Inter-SemiBold',
   },
   emptyStateMessage: {
     fontSize: 14,
-    color: '#6B7280',
     textAlign: 'center',
     fontFamily: 'Inter-Regular',
   },

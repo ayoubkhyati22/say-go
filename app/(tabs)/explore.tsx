@@ -8,17 +8,16 @@ import {
   TouchableOpacity, 
   StatusBar,
   Image,
-  ImageBackground,
-  Dimensions
 } from 'react-native';
 import { Search } from '../../components/Search';
 import { MapPin, Calendar, Star, Navigation2, ChevronRight, Leaf, Train } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useTheme } from '@/context/ThemeContext';
 
 interface PopularDestination {
   id: string;
   name: string;
-  imagePlaceholder: string; // We'll use placeholder in this example
+  imagePlaceholder: string;
   rating: number;
   totalTrips: number;
   averageCO2: string;
@@ -34,8 +33,8 @@ interface DestinationCategory {
 export default function ExploreScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { colors, isDarkMode } = useTheme();
   
-  // Sample destination categories
   const [categories] = useState<DestinationCategory[]>([
     {
       id: 'popular',
@@ -103,7 +102,6 @@ export default function ExploreScreen() {
 
   const handleSearch = (text: string) => {
     setIsLoading(true);
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       router.push('/search');
@@ -115,17 +113,17 @@ export default function ExploreScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1E3A8A" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.header.background} />
       
-      {/* Header with Search */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.header.background }]}>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Explore</Text>
-          <Text style={styles.headerSubtitle}>Discover low-carbon destinations</Text>
+          <Text style={[styles.headerTitle, { color: colors.header.text }]}>Explore</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.header.text }]}>
+            Discover low-carbon destinations
+          </Text>
         </View>
         
-        {/* Search Component */}
         <Search 
           onSearch={handleSearch}
           isLoading={isLoading}
@@ -133,54 +131,50 @@ export default function ExploreScreen() {
       </View>
       
       <ScrollView style={styles.content}>
-        {/* Stats Banner */}
-        <View style={styles.statsBanner}>
+        <View style={[styles.statsBanner, { backgroundColor: colors.card }]}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>1,346</Text>
-            <Text style={styles.statLabel}>Total CO2 Offset</Text>
+            <Text style={[styles.statValue, { color: colors.primary }]}>1,346</Text>
+            <Text style={[styles.statLabel, { color: colors.secondaryText }]}>Total CO2 Offset</Text>
           </View>
           
-          <View style={styles.statsLine} />
+          <View style={[styles.statsLine, { backgroundColor: colors.border }]} />
           
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>84</Text>
-            <Text style={styles.statLabel}>Trees Planted</Text>
+            <Text style={[styles.statValue, { color: colors.primary }]}>84</Text>
+            <Text style={[styles.statLabel, { color: colors.secondaryText }]}>Trees Planted</Text>
           </View>
         </View>
         
-        {/* Map Card */}
-        <TouchableOpacity style={styles.mapCard}>
+        <TouchableOpacity style={[styles.mapCard, { backgroundColor: colors.card }]}>
           <View style={styles.mapPreview}>
-            {/* This would be a real map in a production app */}
             <View style={styles.mapPlaceholder}>
-              <Navigation2 size={32} color="#246BFD" />
+              <Navigation2 size={32} color={colors.primary} />
             </View>
           </View>
           
           <View style={styles.mapCardContent}>
-            <Text style={styles.mapCardTitle}>View CO2 Map</Text>
-            <Text style={styles.mapCardDescription}>
+            <Text style={[styles.mapCardTitle, { color: colors.text }]}>View CO2 Map</Text>
+            <Text style={[styles.mapCardDescription, { color: colors.secondaryText }]}>
               See destinations by carbon footprint
             </Text>
             <View style={styles.mapCardButton}>
-              <Text style={styles.mapCardButtonText}>Open Map</Text>
-              <ChevronRight size={16} color="#246BFD" />
+              <Text style={[styles.mapCardButtonText, { color: colors.primary }]}>Open Map</Text>
+              <ChevronRight size={16} color={colors.primary} />
             </View>
           </View>
         </TouchableOpacity>
         
-        {/* Categories */}
         {categories.map((category) => (
           <View key={category.id} style={styles.category}>
             <View style={styles.categoryHeader}>
-              <Text style={styles.categoryTitle}>{category.title}</Text>
+              <Text style={[styles.categoryTitle, { color: colors.text }]}>{category.title}</Text>
               <TouchableOpacity>
-                <Text style={styles.seeAllText}>See All</Text>
+                <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
               </TouchableOpacity>
             </View>
             
             {category.description && (
-              <Text style={styles.categoryDescription}>{category.description}</Text>
+              <Text style={[styles.categoryDescription, { color: colors.secondaryText }]}>{category.description}</Text>
             )}
             
             <ScrollView 
@@ -191,13 +185,12 @@ export default function ExploreScreen() {
               {category.destinations.map((destination) => (
                 <TouchableOpacity 
                   key={destination.id}
-                  style={styles.destinationCard}
+                  style={[styles.destinationCard, { backgroundColor: colors.card }]}
                   onPress={() => navigateToDestination(destination.id)}
                 >
                   <View style={styles.destinationImageContainer}>
-                    <View style={styles.destinationImage}>
-                      {/* This would be a real image in a production app */}
-                      <Text style={styles.destinationImageText}>
+                    <View style={[styles.destinationImage, { backgroundColor: colors.primary }]}>
+                      <Text style={[styles.destinationImageText, { color: colors.cardText }]}>
                         {destination.name.charAt(0)}
                       </Text>
                     </View>
@@ -210,17 +203,17 @@ export default function ExploreScreen() {
                   </View>
                   
                   <View style={styles.destinationInfo}>
-                    <Text style={styles.destinationName}>{destination.name}</Text>
+                    <Text style={[styles.destinationName, { color: colors.text }]}>{destination.name}</Text>
                     
                     <View style={styles.destinationMeta}>
                       <View style={styles.ratingContainer}>
                         <Star size={14} color="#FBBF24" fill="#FBBF24" style={styles.ratingIcon} />
-                        <Text style={styles.ratingText}>{destination.rating}</Text>
+                        <Text style={[styles.ratingText, { color: colors.secondaryText }]}>{destination.rating}</Text>
                       </View>
                       
                       <View style={styles.co2Container}>
-                        <Train size={14} color="#6B7280" style={styles.co2Icon} />
-                        <Text style={styles.co2Text}>{destination.averageCO2}</Text>
+                        <Train size={14} color={colors.secondaryText} style={styles.co2Icon} />
+                        <Text style={[styles.co2Text, { color: colors.secondaryText }]}>{destination.averageCO2}</Text>
                       </View>
                     </View>
                   </View>
@@ -230,29 +223,27 @@ export default function ExploreScreen() {
           </View>
         ))}
         
-        {/* Green Travel Tips */}
         <View style={styles.tipsSection}>
-          <Text style={styles.tipsTitle}>Green Travel Tips</Text>
+          <Text style={[styles.tipsTitle, { color: colors.text }]}>Green Travel Tips</Text>
           
-          <View style={styles.tipCard}>
+          <View style={[styles.tipCard, { backgroundColor: colors.card }]}>
             <View style={styles.tipIconContainer}>
               <Leaf size={24} color="#10B981" />
             </View>
             <View style={styles.tipContent}>
-              <Text style={styles.tipTitle}>Choose Trains over Planes</Text>
-              <Text style={styles.tipDescription}>
+              <Text style={[styles.tipTitle, { color: colors.text }]}>Choose Trains over Planes</Text>
+              <Text style={[styles.tipDescription, { color: colors.secondaryText }]}>
                 Trains emit up to 80% less CO2 than airplanes for the same journey.
               </Text>
             </View>
           </View>
           
-          <TouchableOpacity style={styles.moreTipsButton}>
-            <Text style={styles.moreTipsText}>View All Tips</Text>
-            <ChevronRight size={16} color="#246BFD" />
+          <TouchableOpacity style={[styles.moreTipsButton, { backgroundColor: colors.card }]}>
+            <Text style={[styles.moreTipsText, { color: colors.primary }]}>View All Tips</Text>
+            <ChevronRight size={16} color={colors.primary} />
           </TouchableOpacity>
         </View>
         
-        {/* Add padding at the bottom for the tab bar */}
         <View style={{ height: 80 }} />
       </ScrollView>
     </SafeAreaView>
@@ -262,10 +253,8 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
   },
   header: {
-    backgroundColor: '#1E3A8A',
     paddingTop: 20,
     paddingHorizontal: 16,
     paddingBottom: 24,
@@ -275,14 +264,12 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: '700',
-    color: 'white',
     fontFamily: 'Inter-Bold',
   },
   headerSubtitle: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
     fontFamily: 'Inter-Regular',
+    opacity: 0.8,
   },
   content: {
     flex: 1,
@@ -290,7 +277,6 @@ const styles = StyleSheet.create({
   },
   statsBanner: {
     flexDirection: 'row',
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginTop: 16,
@@ -307,23 +293,18 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#246BFD',
-    marginBottom: 4,
     fontFamily: 'Inter-Bold',
+    marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   statsLine: {
     width: 1,
     height: '100%',
-    backgroundColor: '#E5E7EB',
   },
   mapCard: {
-    backgroundColor: 'white',
     borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 24,
@@ -335,7 +316,6 @@ const styles = StyleSheet.create({
   },
   mapPreview: {
     height: 120,
-    backgroundColor: '#E5E7EB',
   },
   mapPlaceholder: {
     width: '100%',
@@ -349,16 +329,13 @@ const styles = StyleSheet.create({
   },
   mapCardTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
     fontFamily: 'Inter-SemiBold',
+    marginBottom: 4,
   },
   mapCardDescription: {
     fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 16,
     fontFamily: 'Inter-Regular',
+    marginBottom: 16,
   },
   mapCardButton: {
     flexDirection: 'row',
@@ -366,10 +343,8 @@ const styles = StyleSheet.create({
   },
   mapCardButtonText: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#246BFD',
-    marginRight: 4,
     fontFamily: 'Inter-Medium',
+    marginRight: 4,
   },
   category: {
     marginBottom: 24,
@@ -382,21 +357,16 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
     fontFamily: 'Inter-SemiBold',
   },
   seeAllText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#246BFD',
     fontFamily: 'Inter-Medium',
   },
   categoryDescription: {
     fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 12,
     fontFamily: 'Inter-Regular',
+    marginBottom: 12,
   },
   destinationsContainer: {
     paddingBottom: 8,
@@ -404,7 +374,6 @@ const styles = StyleSheet.create({
   },
   destinationCard: {
     width: 160,
-    backgroundColor: 'white',
     borderRadius: 12,
     overflow: 'hidden',
     marginRight: 12,
@@ -419,14 +388,11 @@ const styles = StyleSheet.create({
   },
   destinationImage: {
     height: 100,
-    backgroundColor: '#246BFD',
     justifyContent: 'center',
     alignItems: 'center',
   },
   destinationImageText: {
     fontSize: 32,
-    fontWeight: '700',
-    color: 'white',
     fontFamily: 'Inter-Bold',
   },
   ecoBadge: {
@@ -445,10 +411,8 @@ const styles = StyleSheet.create({
   },
   destinationName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 8,
     fontFamily: 'Inter-SemiBold',
+    marginBottom: 8,
   },
   destinationMeta: {
     flexDirection: 'row',
@@ -463,7 +427,6 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 14,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   co2Container: {
@@ -475,7 +438,6 @@ const styles = StyleSheet.create({
   },
   co2Text: {
     fontSize: 14,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   tipsSection: {
@@ -483,14 +445,11 @@ const styles = StyleSheet.create({
   },
   tipsTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 12,
     fontFamily: 'Inter-SemiBold',
+    marginBottom: 12,
   },
   tipCard: {
     flexDirection: 'row',
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -514,21 +473,17 @@ const styles = StyleSheet.create({
   },
   tipTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
     fontFamily: 'Inter-SemiBold',
+    marginBottom: 4,
   },
   tipDescription: {
     fontSize: 14,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   moreTipsButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 12,
     shadowColor: '#000',
@@ -539,9 +494,7 @@ const styles = StyleSheet.create({
   },
   moreTipsText: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#246BFD',
-    marginRight: 4,
     fontFamily: 'Inter-Medium',
+    marginRight: 4,
   },
 });

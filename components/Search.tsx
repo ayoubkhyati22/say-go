@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Mic, Search as SearchIcon, X } from 'lucide-react-native';
 import { VoiceWaveform } from './VoiceWaveform';
+import { useTheme } from '@/context/ThemeContext';
 
 // Only import Voice on native platforms
 let Voice: any;
@@ -24,6 +25,7 @@ interface SearchProps {
 }
 
 export function Search({ onSearch, isLoading = false }: SearchProps) {
+  const { colors, isDarkMode } = useTheme();
   const [searchText, setSearchText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingError, setRecordingError] = useState<string | null>(null);
@@ -156,13 +158,21 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <View style={styles.inputContainer}>
-          <SearchIcon size={20} color="#6B7280" style={styles.searchIcon} />
+        <View style={[
+          styles.inputContainer, 
+          { 
+            backgroundColor: colors.card,
+            shadowOpacity: isDarkMode ? 0.2 : 0.05,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }
+        ]}>
+          <SearchIcon size={20} color={colors.secondaryText} style={styles.searchIcon} />
           <TextInput
             ref={inputRef}
-            style={styles.input}
+            style={[styles.input, { color: colors.text }]}
             placeholder="Where do you want to go?"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.secondaryText}
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={handleSubmit}
@@ -173,11 +183,11 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
               style={styles.clearButton} 
               onPress={handleClearText}
             >
-              <X size={18} color="#9CA3AF" />
+              <X size={18} color={colors.secondaryText} />
             </TouchableOpacity>
           )}
           {isLoading && (
-            <ActivityIndicator size="small" color="#246BFD" style={styles.loader} />
+            <ActivityIndicator size="small" color={colors.primary} style={styles.loader} />
           )}
         </View>
         
@@ -190,14 +200,22 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
           <TouchableOpacity
             style={[
               styles.micButton,
-              isRecording && styles.micButtonActive
+              { 
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                shadowOpacity: isDarkMode ? 0.2 : 0.1,
+              },
+              isRecording && { 
+                backgroundColor: colors.primary,
+                borderColor: colors.primary 
+              }
             ]}
             onPress={handleMicPress}
             disabled={isLoading}
           >
             <Mic 
               size={22} 
-              color={isRecording ? "#FFFFFF" : "#246BFD"} 
+              color={isRecording ? "#FFFFFF" : colors.primary} 
             />
           </TouchableOpacity>
         </Animated.View>
@@ -213,7 +231,12 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
       </Animated.View>
       
       {recordingError && (
-        <Text style={styles.errorText}>{recordingError}</Text>
+        <Text style={[
+          styles.errorText, 
+          { color: colors.error || '#FF3B30' }
+        ]}>
+          {recordingError}
+        </Text>
       )}
     </View>
   );
@@ -231,13 +254,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
     marginRight: 12,
@@ -250,7 +271,6 @@ const styles = StyleSheet.create({
     height: '100%',
     fontSize: 16,
     fontFamily: 'Inter-Regular',
-    color: '#1A1A1A',
   },
   clearButton: {
     padding: 4,
@@ -266,20 +286,13 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  micButtonActive: {
-    backgroundColor: '#246BFD',
-    borderColor: '#246BFD',
   },
   waveformContainer: {
     height: 64,
@@ -290,7 +303,6 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: '#FF3B30',
     marginTop: 8,
     textAlign: 'center',
   },

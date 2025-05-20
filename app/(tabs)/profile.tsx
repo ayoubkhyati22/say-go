@@ -17,8 +17,8 @@ export default function ProfileScreen() {
   const { theme, setTheme, isDarkMode, colors } = useTheme();
   
   const user = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+    name: 'Ayoub KHYATI',
+    email: 'ayoub.kh@example.com',
     profileImage: null,
     totalSaved: '32.4 kg',
     savedTrips: 12
@@ -193,8 +193,8 @@ export default function ProfileScreen() {
         </View>
         
         <View style={styles.appInfo}>
-          <Text style={[styles.appVersion, { color: colors.secondaryText }]}>Carbo v1.2.3</Text>
-          <Text style={[styles.appCopyright, { color: colors.secondaryText }]}>© 2022 Carbo Inc.</Text>
+          <Text style={[styles.appVersion, { color: colors.secondaryText }]}>SayGo v1.0.0</Text>
+          <Text style={[styles.appCopyright, { color: colors.secondaryText }]}>© 2025 SayGo Inc.</Text>
         </View>
         
         <View style={{ height: 80 }} />

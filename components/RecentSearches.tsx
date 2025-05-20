@@ -1,11 +1,14 @@
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { MapPin, Clock, ArrowRight, X } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 interface RecentSearchesProps {
   onSearchSelect: (search: string) => void;
 }
 
 export function RecentSearches({ onSearchSelect }: RecentSearchesProps) {
+  const { colors, isDarkMode } = useTheme();
+  
   // Mock data for recent searches
   const recentSearches = [
     'Casa Voyageurs to Tanger Ville Tomorrow',
@@ -27,26 +30,43 @@ export function RecentSearches({ onSearchSelect }: RecentSearchesProps) {
       {recentSearches.length > 0 && (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Searches</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Recent Searches
+            </Text>
             <TouchableOpacity>
-              <Text style={styles.clearText}>Clear All</Text>
+              <Text style={[styles.clearText, { color: colors.primary }]}>
+                Clear All
+              </Text>
             </TouchableOpacity>
           </View>
           
-          <View style={styles.recentList}>
+          <View style={[
+            styles.recentList, 
+            { 
+              backgroundColor: colors.card,
+              shadowOpacity: isDarkMode ? 0.2 : 0.05
+            }
+          ]}>
             {recentSearches.map((search, index) => (
               <TouchableOpacity 
                 key={`recent-${index}`}
-                style={styles.recentItem}
+                style={[
+                  styles.recentItem, 
+                  { 
+                    borderBottomColor: colors.border 
+                  }
+                ]}
                 onPress={() => onSearchSelect(search)}
               >
-                <Clock size={18} color="#6B7280" style={styles.itemIcon} />
-                <Text style={styles.itemText} numberOfLines={1}>{search}</Text>
+                <Clock size={18} color={colors.secondaryText} style={styles.itemIcon} />
+                <Text style={[styles.itemText, { color: colors.secondaryText }]} numberOfLines={1}>
+                  {search}
+                </Text>
                 <TouchableOpacity 
                   style={styles.removeButton}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <X size={16} color="#9CA3AF" />
+                  <X size={16} color={colors.secondaryText} />
                 </TouchableOpacity>
               </TouchableOpacity>
             ))}
@@ -54,9 +74,12 @@ export function RecentSearches({ onSearchSelect }: RecentSearchesProps) {
         </View>
       )}
 
+      {/* Commented out the popular destinations section, but applying theme colors */}
       {/* <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Popular Destinations</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Popular Destinations
+          </Text>
         </View>
         
         <ScrollView 
@@ -67,14 +90,22 @@ export function RecentSearches({ onSearchSelect }: RecentSearchesProps) {
           {popularDestinations.map((destination, index) => (
             <TouchableOpacity 
               key={`dest-${index}`}
-              style={styles.popularItem}
+              style={[
+                styles.popularItem, 
+                { 
+                  backgroundColor: colors.card,
+                  shadowOpacity: isDarkMode ? 0.2 : 0.05 
+                }
+              ]}
               onPress={() => onSearchSelect(destination)}
             >
               <View style={styles.popularItemContent}>
-                <MapPin size={18} color="#246BFD" style={styles.itemIcon} />
-                <Text style={styles.popularItemText}>{destination}</Text>
+                <MapPin size={18} color={colors.primary} style={styles.itemIcon} />
+                <Text style={[styles.popularItemText, { color: colors.text }]}>
+                  {destination}
+                </Text>
               </View>
-              <ArrowRight size={16} color="#6B7280" />
+              <ArrowRight size={16} color={colors.secondaryText} />
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -99,20 +130,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 18,
-    color: '#1A1A1A',
   },
   clearText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: '#246BFD',
   },
   recentList: {
-    backgroundColor: 'white',
     borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -122,7 +149,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E7EB',
   },
   itemIcon: {
     marginRight: 12,
@@ -131,7 +157,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: '#4B5563',
   },
   removeButton: {
     padding: 4,
@@ -143,7 +168,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'white',
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 12,
@@ -151,7 +175,6 @@ const styles = StyleSheet.create({
     minWidth: 160,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -163,6 +186,5 @@ const styles = StyleSheet.create({
   popularItemText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: '#1A1A1A',
   },
 });

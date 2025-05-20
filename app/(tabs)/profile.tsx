@@ -14,7 +14,7 @@ import { useTheme } from '@/context/ThemeContext';
 import Animated from 'react-native-reanimated';
 
 export default function ProfileScreen() {
-  const { theme, setTheme, isDarkMode } = useTheme();
+  const { theme, setTheme, isDarkMode, colors } = useTheme();
   
   const user = {
     name: 'John Doe',
@@ -34,83 +34,82 @@ export default function ProfileScreen() {
     {
       id: 'account',
       title: 'Account Settings',
-      icon: <UserIcon size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
+      icon: <UserIcon size={20} color={colors.primary} />,
       rightContent: null,
     },
     {
       id: 'payment',
       title: 'Payment Methods',
-      icon: <CreditCard size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
-      rightContent: <Text style={styles.itemInfo}>Mastercard •••• 4778</Text>,
+      icon: <CreditCard size={20} color={colors.primary} />,
+      rightContent: <Text style={[styles.itemInfo, { color: colors.secondaryText }]}>Mastercard •••• 4778</Text>,
     },
     {
       id: 'notifications',
       title: 'Notifications',
-      icon: <Bell size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
+      icon: <Bell size={20} color={colors.primary} />,
       rightContent: null,
     },
     {
       id: 'location',
       title: 'Location',
-      icon: <MapPin size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
-      rightContent: <Text style={styles.itemInfo}>Casablanca</Text>,
+      icon: <MapPin size={20} color={colors.primary} />,
+      rightContent: <Text style={[styles.itemInfo, { color: colors.secondaryText }]}>Casablanca</Text>,
     },
     {
       id: 'security',
       title: 'Security',
-      icon: <Shield size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
+      icon: <Shield size={20} color={colors.primary} />,
       rightContent: null,
     },
     {
       id: 'help',
       title: 'Help & Support',
-      icon: <HelpCircle size={20} color={isDarkMode ? '#60A5FA' : '#246BFD'} />,
+      icon: <HelpCircle size={20} color={colors.primary} />,
       rightContent: null,
     },
     {
       id: 'logout',
       title: 'Logout',
-      icon: <LogOut size={20} color="#FF4D4F" />,
+      icon: <LogOut size={20} color={colors.error} />,
       rightContent: null,
       danger: true,
     },
   ];
 
   return (
-    <SafeAreaView style={[styles.container, isDarkMode ? styles.darkBackground : styles.lightBackground]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
       
-      <View style={styles.header}>
-        <Text style={[styles.headerTitle, isDarkMode ? styles.darkText : styles.lightText]}>Profile</Text>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Profile</Text>
         <TouchableOpacity style={styles.settingsButton}>
-          <Settings size={24} color={isDarkMode ? '#F3F4F6' : '#1A1A1A'} />
+          <Settings size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
       
       <ScrollView style={styles.content}>
-        <View style={[styles.profileSection, isDarkMode ? styles.darkCard : styles.lightCard]}>
+        <View style={[styles.profileSection, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <View style={styles.profileInfo}>
-            <View style={styles.profileImagePlaceholder}>
-              <Text style={styles.profileInitials}>
+            <View style={[styles.profileImagePlaceholder, { backgroundColor: colors.secondary }]}>
+              <Text style={[styles.profileInitials, { color: colors.text }]}>
                 {user.name.split(' ').map(n => n[0]).join('')}
               </Text>
             </View>
             <View style={styles.profileDetails}>
-              <Text style={[styles.profileName, isDarkMode ? styles.darkText : styles.lightText]}>
+              <Text style={[styles.profileName, { color: colors.text }]}>
                 {user.name}
               </Text>
-              <Text style={styles.profileEmail}>{user.email}</Text>
+              <Text style={[styles.profileEmail, { color: colors.secondaryText }]}>{user.email}</Text>
             </View>
           </View>
           
-          <TouchableOpacity style={styles.editProfileButton}>
-            <Text style={styles.editProfileText}>Edit Profile</Text>
+          <TouchableOpacity style={[styles.editProfileButton, { backgroundColor: colors.secondary }]}>
+            <Text style={[styles.editProfileText, { color: colors.text }]}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Theme Selection */}
-        <View style={[styles.themeSection, isDarkMode ? styles.darkCard : styles.lightCard]}>
-          <Text style={[styles.themeSectionTitle, isDarkMode ? styles.darkText : styles.lightText]}>
+        <View style={[styles.themeSection, { backgroundColor: colors.card }]}>
+          <Text style={[styles.themeSectionTitle, { color: colors.text }]}>
             Appearance
           </Text>
           <View style={styles.themeOptions}>
@@ -119,20 +118,19 @@ export default function ProfileScreen() {
                 key={option.id}
                 style={[
                   styles.themeOption,
-                  theme === option.id && styles.themeOptionActive,
-                  isDarkMode && styles.darkThemeOption
+                  { backgroundColor: colors.background },
+                  theme === option.id && { backgroundColor: colors.primary }
                 ]}
                 onPress={() => setTheme(option.id)}
               >
                 <option.icon
                   size={20}
-                  color={theme === option.id ? (isDarkMode ? '#60A5FA' : '#246BFD') : (isDarkMode ? '#9CA3AF' : '#6B7280')}
+                  color={theme === option.id ? colors.text : colors.secondaryText}
                 />
                 <Text
                   style={[
                     styles.themeOptionText,
-                    theme === option.id && styles.themeOptionTextActive,
-                    isDarkMode && styles.darkThemeOptionText
+                    { color: theme === option.id ? colors.text : colors.secondaryText }
                   ]}
                 >
                   {option.title}
@@ -142,36 +140,36 @@ export default function ProfileScreen() {
           </View>
         </View>
         
-        <View style={[styles.statsCard, isDarkMode ? styles.darkCard : styles.lightCard]}>
+        <View style={[styles.statsCard, { backgroundColor: colors.card }]}>
           <View style={styles.statsHeader}>
-            <Leaf size={20} color="#10B981" />
-            <Text style={[styles.statsTitle, isDarkMode ? styles.darkText : styles.lightText]}>
+            <Leaf size={20} color={colors.success} />
+            <Text style={[styles.statsTitle, { color: colors.text }]}>
               Your CO2 Impact
             </Text>
           </View>
           
           <View style={styles.statsContent}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{user.totalSaved}</Text>
-              <Text style={styles.statLabel}>CO2 Saved</Text>
+              <Text style={[styles.statValue, { color: colors.primary }]}>{user.totalSaved}</Text>
+              <Text style={[styles.statLabel, { color: colors.secondaryText }]}>CO2 Saved</Text>
             </View>
             
-            <View style={styles.statsDivider} />
+            <View style={[styles.statsDivider, { backgroundColor: colors.border }]} />
             
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{user.savedTrips}</Text>
-              <Text style={styles.statLabel}>Trips Offset</Text>
+              <Text style={[styles.statValue, { color: colors.primary }]}>{user.savedTrips}</Text>
+              <Text style={[styles.statLabel, { color: colors.secondaryText }]}>Trips Offset</Text>
             </View>
           </View>
         </View>
         
-        <View style={[styles.menuSection, isDarkMode ? styles.darkCard : styles.lightCard]}>
+        <View style={[styles.menuSection, { backgroundColor: colors.card }]}>
           {menuItems.map((item) => (
             <TouchableOpacity 
               key={item.id}
               style={[
                 styles.menuItem,
-                item.id !== menuItems[menuItems.length - 1].id && styles.menuItemBorder
+                item.id !== menuItems[menuItems.length - 1].id && { borderBottomColor: colors.border }
               ]}
             >
               <View style={styles.menuItemLeft}>
@@ -179,7 +177,7 @@ export default function ProfileScreen() {
                 <Text 
                   style={[
                     styles.menuItemTitle,
-                    item.danger ? styles.dangerText : isDarkMode ? styles.darkText : styles.lightText
+                    { color: item.danger ? colors.error : colors.text }
                   ]}
                 >
                   {item.title}
@@ -188,15 +186,15 @@ export default function ProfileScreen() {
               
               <View style={styles.menuItemRight}>
                 {item.rightContent}
-                <ChevronRight size={20} color={isDarkMode ? '#9CA3AF' : '#9CA3AF'} />
+                <ChevronRight size={20} color={colors.secondaryText} />
               </View>
             </TouchableOpacity>
           ))}
         </View>
         
         <View style={styles.appInfo}>
-          <Text style={styles.appVersion}>Carbo v1.2.3</Text>
-          <Text style={styles.appCopyright}>© 2022 Carbo Inc.</Text>
+          <Text style={[styles.appVersion, { color: colors.secondaryText }]}>Carbo v1.2.3</Text>
+          <Text style={[styles.appCopyright, { color: colors.secondaryText }]}>© 2022 Carbo Inc.</Text>
         </View>
         
         <View style={{ height: 80 }} />
@@ -209,32 +207,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  lightBackground: {
-    backgroundColor: '#F3F4F6',
-  },
-  darkBackground: {
-    backgroundColor: '#121212',
-  },
-  lightText: {
-    color: '#111827',
-  },
-  darkText: {
-    color: '#F3F4F6',
-  },
-  lightCard: {
-    backgroundColor: '#FFFFFF',
-  },
-  darkCard: {
-    backgroundColor: '#1E1E1E',
-  },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
     fontSize: 20,
@@ -249,18 +228,15 @@ const styles = StyleSheet.create({
   profileSection: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   profileInfo: {
     flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 16,
   },
   profileImagePlaceholder: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#E5E7EB',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -268,10 +244,10 @@ const styles = StyleSheet.create({
   profileInitials: {
     fontSize: 24,
     fontFamily: 'Inter-SemiBold',
-    color: '#4B5563',
   },
   profileDetails: {
     flex: 1,
+    justifyContent: 'center',
   },
   profileName: {
     fontSize: 18,
@@ -280,11 +256,9 @@ const styles = StyleSheet.create({
   },
   profileEmail: {
     fontSize: 14,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   editProfileButton: {
-    backgroundColor: '#F3F4F6',
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
@@ -292,7 +266,6 @@ const styles = StyleSheet.create({
   editProfileText: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
-    color: '#246BFD',
   },
   themeSection: {
     padding: 16,
@@ -316,33 +289,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 12,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
     marginHorizontal: 4,
-  },
-  darkThemeOption: {
-    backgroundColor: '#2D2D2D',
-  },
-  themeOptionActive: {
-    backgroundColor: '#EFF6FF',
   },
   themeOptionText: {
     marginLeft: 8,
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#6B7280',
-  },
-  darkThemeOptionText: {
-    color: '#9CA3AF',
-  },
-  themeOptionTextActive: {
-    color: '#246BFD',
   },
   statsCard: {
     margin: 16,
     borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
@@ -351,8 +310,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   statsTitle: {
     fontSize: 16,
@@ -370,21 +327,17 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#246BFD',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   statsDivider: {
     width: 1,
-    backgroundColor: '#E5E7EB',
     marginHorizontal: 16,
   },
   menuSection: {
-    backgroundColor: 'white',
     borderRadius: 12,
     overflow: 'hidden',
     marginHorizontal: 16,
@@ -401,10 +354,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 16,
-  },
-  menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -415,16 +365,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     marginLeft: 16,
   },
-  dangerText: {
-    color: '#FF4D4F',
-  },
   menuItemRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   itemInfo: {
     fontSize: 14,
-    color: '#6B7280',
     marginRight: 8,
     fontFamily: 'Inter-Regular',
   },
@@ -435,12 +381,10 @@ const styles = StyleSheet.create({
   },
   appVersion: {
     fontSize: 14,
-    color: '#6B7280',
     fontFamily: 'Inter-Regular',
   },
   appCopyright: {
     fontSize: 12,
-    color: '#9CA3AF',
     marginTop: 4,
     fontFamily: 'Inter-Regular',
   },

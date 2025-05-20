@@ -59,8 +59,8 @@ export default function BookingsScreen() {
         currency: 'DH',
         trainNumber: 'A102',
         date: 'Sunday, August 7, 2022',
-        co2Emission: '3.67',
-        offsetCost: '$7.8',
+        co2Emission: 'ONCF',
+        offsetCost: '78 DH',
         transportType: 'car'
       },
       isSaved: true,
@@ -79,8 +79,8 @@ export default function BookingsScreen() {
         currency: 'DH',
         trainNumber: 'B205',
         date: 'Monday, August 8, 2022',
-        co2Emission: '2.92',
-        offsetCost: '$5.0',
+        co2Emission: 'CTM',
+        offsetCost: '50 DH',
         transportType: 'train'
       },
       isSaved: true,
@@ -99,8 +99,8 @@ export default function BookingsScreen() {
         currency: 'DH',
         trainNumber: 'C307',
         date: 'Tuesday, July 19, 2022',
-        co2Emission: '4.15',
-        offsetCost: '$8.5',
+        co2Emission: 'ONCF',
+        offsetCost: '85 DH',
         transportType: 'car'
       },
       isSaved: true,
@@ -204,12 +204,12 @@ export default function BookingsScreen() {
                   
                   <View style={[styles.tripMetrics, { borderTopColor: colors.border }]}>
                     <View style={styles.metricItem}>
-                      <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>CO2</Text>
-                      <Text style={[styles.metricValue, { color: colors.text }]}>{trip.journeyDetails.co2Emission} g</Text>
+                      <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Campany</Text>
+                      <Text style={[styles.metricValue, { color: colors.text }]}>{trip.journeyDetails.co2Emission}</Text>
                     </View>
                     
                     <View style={styles.metricItem}>
-                      <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Offset</Text>
+                      <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Price</Text>
                       <Text style={styles.offsetValue}>{trip.journeyDetails.offsetCost}</Text>
                     </View>
                   </View>

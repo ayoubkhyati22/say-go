@@ -109,7 +109,7 @@ export default function ExploreScreen() {
   };
 
   const navigateToDestination = (destinationId: string) => {
-    router.push('');
+    router.push('/search');
   };
 
   return (
@@ -190,7 +190,7 @@ export default function ExploreScreen() {
                 >
                   <View style={styles.destinationImageContainer}>
                     <View style={[styles.destinationImage, { backgroundColor: colors.primary }]}>
-                      <Text style={[styles.destinationImageText, { color: colors.cardText }]}>
+                      <Text style={[styles.destinationImageText, { color: colors.text }]}>
                         {destination.name.charAt(0)}
                       </Text>
                     </View>

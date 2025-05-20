@@ -147,6 +147,9 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
+    backgroundImage: `url(${require('../../assets/images/travel.jpg')})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   },
   headerContent: {
     alignItems: 'center',

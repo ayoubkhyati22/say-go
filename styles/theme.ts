@@ -1,46 +1,46 @@
-import { StyleSheet } from 'react-native';
-
 export const lightTheme = {
-  background: '#FFFFFF',
-  text: '#111827',
-  secondaryText: '#6B7280',
-  primary: '#246BFD',
-  secondary: '#3B82F6',
-  card: '#F9FAFB',
-  border: '#E5E7EB',
-  error: '#EF4444',
-  success: '#10B981',
-  warning: '#F59E0B',
+  background: '#f3f6fc',
+  text: '#03040c',
+  secondaryText: '#4d4e56',
+  primary: '#3651c9',
+  secondary: '#b192e2',
+  accent: '#ab66d6',
+  card: '#ffffff',
+  border: '#e1e5f0',
+  error: '#ef4444',
+  success: '#10b981',
+  warning: '#f59e0b',
   tabBar: {
-    background: '#FFFFFF',
-    active: '#246BFD',
-    inactive: '#9CA3AF',
+    background: '#ffffff',
+    active: '#3651c9',
+    inactive: '#4d4e56',
   },
   header: {
-    background: '#1E3A8A',
-    text: '#FFFFFF',
+    background: '#3651c9',
+    text: '#f3f6fc',
   }
 };
 
 export const darkTheme = {
-  background: '#121212',
-  text: '#F3F4F6',
-  secondaryText: '#9CA3AF',
-  primary: '#2563EB',
-  secondary: '#60A5FA',
-  card: '#1E1E1E',
-  border: '#374151',
-  error: '#EF4444',
-  success: '#10B981',
-  warning: '#F59E0B',
+  background: '#03060c',
+  text: '#f3f4fc',
+  secondaryText: '#a6a7af',
+  primary: '#3651c9',
+  secondary: '#3c1d6d',
+  accent: '#6e2999',
+  card: '#0a0d14',
+  border: '#1a1d24',
+  error: '#ef4444',
+  success: '#10b981',
+  warning: '#f59e0b',
   tabBar: {
-    background: '#1E1E1E',
-    active: '#60A5FA',
-    inactive: '#6B7280',
+    background: '#0a0d14',
+    active: '#3651c9',
+    inactive: '#a6a7af',
   },
   header: {
-    background: '#1E1E1E',
-    text: '#F3F4F6',
+    background: '#0a0d14',
+    text: '#f3f4fc',
   }
 };
 

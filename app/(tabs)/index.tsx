@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 20,
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingBottom: 0,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
   },
   section: {
     marginTop: 24,

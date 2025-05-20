@@ -255,12 +255,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 20,
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingTop: 24,
+    paddingHorizontal: 10,
+    paddingBottom: 0,
   },
   headerContent: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
   headerTitle: {
     fontSize: 28,
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
   },
   statsBanner: {
     flexDirection: 'row',

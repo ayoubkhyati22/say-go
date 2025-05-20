@@ -162,13 +162,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 24,
+    paddingHorizontal: 10,
+    paddingTop: 50,
+    paddingBottom: 0,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
   },
   resultsContainer: {
     marginTop: 16,

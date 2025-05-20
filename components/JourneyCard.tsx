@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   headerLeft: {
-    width: 45,
+    width: 50,
   },
   headerRight: {
     flex: 1,
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   stationContainer: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 18,
     justifyContent: 'space-between',
   },
   priceCircleContainer: {

@@ -40,7 +40,7 @@ export default function HomeScreen() {
 
   const [journeys] = useState<Array<JourneyDetails & { isSaved: boolean }>>([
     {
-      gender: 'oncf',
+      campany: 'oncf',
       id: '1',
       departureTime: '08:30',
       arrivalTime: '10:45',

@@ -42,6 +42,8 @@ function getMockJourneys(): Journey[] {
     {
       index: 1,
       journey: {
+        id: '0',
+        campany: "---",
         departureTime: "--:--",
         departureStation: {
           code: "---",

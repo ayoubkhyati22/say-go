@@ -20,7 +20,7 @@ interface Station {
 }
 
 interface JourneyDetails {
-  gender: string,
+  campany: string,
   id: string;
   departureTime: string;
   arrivalTime: string;
@@ -55,7 +55,7 @@ export default function ResultsScreen() {
       // Sample search results
       const results = [
         {
-          gender:"oncf",
+          campany:"oncf",
           id: '1',
           departureTime: '08:30',
           arrivalTime: '10:45',
@@ -70,7 +70,7 @@ export default function ResultsScreen() {
           distance: '1.7 km'
         },
         {
-          gender:"ctm",
+          campany:"ctm",
           id: '2',
           departureTime: '12:15',
           arrivalTime: '15:30',
@@ -85,7 +85,7 @@ export default function ResultsScreen() {
           distance: '1.7 km'
         },
         {
-          gender:"oncf",
+          campany:"oncf",
           id: '3',
           departureTime: '16:00',
           arrivalTime: '18:20',

@@ -65,8 +65,8 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
     return `${price} ${currency}`;
   };
 
-  // Determine logo based on gender property
-  const logoSource = journey.gender === 'ctm'
+  // Determine logo based on campany property
+  const logoSource = journey.campany === 'ctm'
     ? require('../assets/images/ctm.svg')
     : require('../assets/images/oncf.svg');
 
@@ -239,7 +239,7 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
           </View>
         </View>
 
-        {journey.gender === 'ctm' ? (
+        {journey.campany === 'ctm' ? (
         <Image source={isDarkMode ? images.ctm.dark : images.ctm.light} />
         ) : (
           <Image source={isDarkMode ? images.oncf.dark : images.oncf.light} />
@@ -272,13 +272,13 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
 
         <View style={styles.detailRow}>
           <View style={styles.detailItem}>
-            {journey.gender === 'oncf' ? (
+            {journey.campany === 'oncf' ? (
               <TrainFront size={16} color={colors.accent} />
             ) : (
               <BusFront size={16} color={colors.accent} />
             )}
             <Animated.Text style={detailTextStyle}>
-              {journey.gender === 'oncf' ? `Train ${journey.trainNumber}` : `Bus ${journey.trainNumber}`}
+              {journey.campany === 'oncf' ? `Train ${journey.trainNumber}` : `Bus ${journey.trainNumber}`}
             </Animated.Text>
           </View>
 

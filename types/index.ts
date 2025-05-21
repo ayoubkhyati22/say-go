@@ -5,7 +5,7 @@ export interface Station {
 
 export interface JourneyDetails {
   id: string;
-  gender: string;
+  campany: string;
   departureTime: string;
   departureStation: Station;
   arrivalTime: string;

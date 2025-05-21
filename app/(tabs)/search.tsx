@@ -28,7 +28,7 @@ export default function SearchScreen() {
   // Sample search results data
   const sampleSearchResults = [
     {
-      gender: 'oncf',
+      campany: 'oncf',
       id: '1',
       departureTime: '08:30',
       arrivalTime: '10:45',
@@ -43,7 +43,7 @@ export default function SearchScreen() {
       distance: '1.7 km'
     },
     {
-      gender: 'ctm',
+      campany: 'ctm',
       id: '1',
       departureTime: '08:30',
       arrivalTime: '10:45',
@@ -58,7 +58,7 @@ export default function SearchScreen() {
       distance: '1.7 km'
     },
     {
-      gender: 'oncf',
+      campany: 'oncf',
       id: '1',
       departureTime: '08:30',
       arrivalTime: '10:45',

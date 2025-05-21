@@ -20,14 +20,10 @@ interface JourneyCardProps {
 export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const expandAnimation = useSharedValue(0);
-  const { colors, isDarkMode, animatedColor } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   
   const images = useMemo(() => {
     return {
-      royaumeMaroc: {
-        light: require('../assets/images/royaume-maroc.svg'),
-        dark: require('../assets/images/royaume-maroc.svg')
-      },
       oncf: {
         light: require('../assets/images/oncf.svg'),
         dark: require('../assets/images/oncf-dark.svg')
@@ -35,18 +31,9 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
       ctm: {
         light: require('../assets/images/ctm.svg'),
         dark: require('../assets/images/ctm-dark.svg')
-      },
-      booking: {
-        light: require('../assets/images/booking.svg'),
-        dark: require('../assets/images/booking-dark.svg')
-      },
-      airbnb: {
-        light: require('../assets/images/airbnb.svg'),
-        dark: require('../assets/images/airbnb-dark.svg')
       }
     };
   }, []);
-
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -65,10 +52,9 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
     return `${price} ${currency}`;
   };
 
-  // Determine logo based on campany property
-  const logoSource = journey.campany === 'ctm'
-    ? require('../assets/images/ctm.svg')
-    : require('../assets/images/oncf.svg');
+  const formatDuration = (duration: string) => {
+    return duration.replace('min', 'minutes').replace('h', 'hours');
+  };
 
   // Create animated styles for themed colors
   const cardStyle = useAnimatedStyle(() => {
@@ -234,16 +220,18 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
         <View style={styles.headerRight}>
           <View style={styles.stationContainer}>
             <Animated.Text style={stationNameStyle}>{journey.departureStation.name}</Animated.Text>
-            <Animated.Text style={travelTimeStyle}>{journey.duration}</Animated.Text>
+            <Animated.Text style={travelTimeStyle}>{formatDuration(journey.duration)}</Animated.Text>
             <Animated.Text style={stationNameStyle}>{journey.arrivalStation.name}</Animated.Text>
           </View>
         </View>
 
-        {journey.campany === 'ctm' ? (
-        <Image source={isDarkMode ? images.ctm.dark : images.ctm.light} />
-        ) : (
-          <Image source={isDarkMode ? images.oncf.dark : images.oncf.light} />
-          )}
+        <Image 
+          source={journey.campany === 'ctm' 
+            ? (isDarkMode ? images.ctm.dark : images.ctm.light)
+            : (isDarkMode ? images.oncf.dark : images.oncf.light)
+          }
+          style={styles.companyLogo}
+        />
 
         <TouchableOpacity
           style={styles.saveButton}
@@ -257,7 +245,6 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
         </TouchableOpacity>
       </TouchableOpacity>
 
-      {/* Price in circle container */}
       <View style={styles.priceCircleContainer}>
         <Animated.View style={priceCircleStyle}>
           <Animated.Text style={priceTextStyle}>
@@ -266,7 +253,6 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
         </Animated.View>
       </View>
 
-      {/* Additional details section that expands */}
       <View style={styles.expandedDetailsContainer}>
         <Animated.View style={separatorStyle} />
 
@@ -300,13 +286,6 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
                 <View style={styles.stationInfo}>
                   <Animated.Text style={detailTimeTextStyle}>{journey.departureTime}</Animated.Text>
                   <Animated.Text style={detailStationTextStyle}>{journey.departureStation.name}</Animated.Text>
-                </View>
-              </View>
-              <View style={styles.stationDetail}>
-                <View style={[styles.stationDot, { backgroundColor: colors.primary }]} />
-                <View style={styles.stationInfo}>
-                  <Animated.Text style={detailTimeTextStyle}>{journey.arrivalTime}</Animated.Text>
-                  <Animated.Text style={detailStationTextStyle}>{journey.arrivalStation.name}</Animated.Text>
                 </View>
               </View>
               <View style={styles.stationDetail}>
@@ -418,5 +397,11 @@ const styles = StyleSheet.create({
   },
   stationInfo: {
     marginLeft: 12,
+  },
+  companyLogo: {
+    width: 50,
+    height: 20,
+    resizeMode: 'contain',
+    marginRight: 8,
   },
 });

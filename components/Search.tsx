@@ -12,6 +12,7 @@ import {
 import { Mic, Search as SearchIcon, X } from 'lucide-react-native';
 import { VoiceWaveform } from './VoiceWaveform';
 import { useTheme } from '@/context/ThemeContext';
+import { searchTravelOptions } from '@/services/api';
 
 // Only import Voice on native platforms
 let Voice: any;
@@ -29,6 +30,7 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   const [searchText, setSearchText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingError, setRecordingError] = useState<string | null>(null);
+  const [recognizedText, setRecognizedText] = useState<string>('');
   const inputRef = useRef<TextInput>(null);
   const waveformOpacity = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
@@ -46,13 +48,20 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
     }
   }, []);
 
-  const onSpeechResults = (e: any) => {
+  const onSpeechResults = async (e: any) => {
     if (e.value && e.value.length > 0) {
-      const recognizedText = e.value[0];
-      setSearchText(recognizedText);
-      setTimeout(() => {
-        onSearch(recognizedText);
-      }, 500);
+      const text = e.value[0];
+      setRecognizedText(text);
+      setSearchText(text);
+      
+      try {
+        const results = await searchTravelOptions(text);
+        if (results && results.length > 0) {
+          onSearch(text);
+        }
+      } catch (error) {
+        console.error('Error searching travel options:', error);
+      }
     }
   };
 
@@ -72,6 +81,7 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
     }
 
     setRecordingError(null);
+    setRecognizedText('');
     
     try {
       await Voice.start('en-US');
@@ -146,12 +156,20 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
 
   const handleClearText = () => {
     setSearchText('');
+    setRecognizedText('');
     inputRef.current?.focus();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (searchText.trim()) {
-      onSearch(searchText);
+      try {
+        const results = await searchTravelOptions(searchText);
+        if (results && results.length > 0) {
+          onSearch(searchText);
+        }
+      } catch (error) {
+        console.error('Error searching travel options:', error);
+      }
     }
   };
 
@@ -238,6 +256,17 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
           {recordingError}
         </Text>
       )}
+
+      {recognizedText && (
+        <View style={[styles.recognizedTextContainer, { backgroundColor: colors.card }]}>
+          <Text style={[styles.recognizedTextLabel, { color: colors.secondaryText }]}>
+            Recognized Text:
+          </Text>
+          <Text style={[styles.recognizedTextContent, { color: colors.text }]}>
+            {recognizedText}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -305,5 +334,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 8,
     textAlign: 'center',
+  },
+  recognizedTextContainer: {
+    marginTop: 16,
+    padding: 12,
+    borderRadius: 8,
+  },
+  recognizedTextLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    marginBottom: 4,
+  },
+  recognizedTextContent: {
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
   },
 });

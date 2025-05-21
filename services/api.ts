@@ -3,11 +3,6 @@ import { Journey } from '@/types';
 
 const API_URL = 'http://localhost:5678/webhook-test/843cdf57-fbf1-40ad-bb6f-05e5ed40eb34';
 
-/**
- * Search for travel options
- * @param query The search query string
- * @returns Promise with search results
- */
 export async function searchTravelOptions(query: string): Promise<Journey[]> {
   try {
     const response = await axios.post(API_URL, {
@@ -15,49 +10,56 @@ export async function searchTravelOptions(query: string): Promise<Journey[]> {
     }, {
       headers: {
         'Content-Type': 'application/json',
-        // Autres en-têtes si nécessaire
       }
-    }); // La parenthèse fermante était mal placée ici
+    });
     
-    // For development purposes, if the API is not available, return mock data
     if (!response.data) {
       return getMockJourneys();
     }
     
-    return response.data;
+    // Transform the API response to match our Journey type
+    return response.data.map((item: any) => ({
+      index: item.index,
+      journey: {
+        id: item.journey.trainNumber,
+        campany: item.journey.campany,
+        departureTime: item.journey.departureTime,
+        departureStation: item.journey.departureStation,
+        arrivalTime: item.journey.arrivalTime,
+        arrivalStation: item.journey.arrivalStation,
+        trainNumber: item.journey.trainNumber,
+        duration: item.journey.duration,
+        price: item.journey.price,
+        currency: item.journey.currency
+      }
+    }));
   } catch (error) {
     console.error('Error searching travel options:', error);
-    
-    // In a real application, we'd want to throw the error
-    // For demo purposes, we'll return mock data
     return getMockJourneys();
   }
 }
 
-/**
- * Get mock journey data for development/testing
- */
 function getMockJourneys(): Journey[] {
   return [
     {
       index: 1,
       journey: {
-        id: '0',
-        campany: "---",
-        departureTime: "--:--",
+        id: 'V60008',
+        campany: "oncf",
+        departureTime: "08:30",
         departureStation: {
-          code: "---",
-          name: "---"
+          code: "200",
+          name: "casa voyageurs"
         },
-        arrivalTime: "--:--",
+        arrivalTime: "14:37",
         arrivalStation: {
-          code: "---",
-          name: "---"
+          code: "303",
+          name: "tanger ville"
         },
-        trainNumber: "---",
-        duration: "-- - ---",
-        price: 0,
-        currency: "--"
+        trainNumber: "V60008",
+        duration: "6h 7 min",
+        price: 190,
+        currency: "DH"
       }
     }
   ];

@@ -1,7 +1,7 @@
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useState, useRef, useMemo } from 'react';
 import { BookmarkCheck, Bookmark, Clock, TrainFront, BusFront } from 'lucide-react-native';
-import { JourneyDetails } from '@/types';
+import { Journey } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
 import Animated, { 
   useAnimatedStyle, 
@@ -11,13 +11,14 @@ import Animated, {
 } from 'react-native-reanimated';
 
 interface JourneyCardProps {
-  journey: JourneyDetails;
+  journey: Journey;
+  campany: string;
   index: number;
   isSaved: boolean;
   onToggleSave: () => void;
 }
 
-export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps) {
+export function JourneyCard({ journey, campany, isSaved, onToggleSave }: JourneyCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const expandAnimation = useSharedValue(0);
   const { colors, isDarkMode } = useTheme();
@@ -202,7 +203,7 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
       >
         <View style={styles.headerLeft}>
           <View style={styles.timeContainer}>
-            <Animated.Text style={timeTextStyle}>{journey.departureTime}</Animated.Text>
+            <Animated.Text style={timeTextStyle}>{journey.journey.departureTime}</Animated.Text>
             <View style={styles.timelineContainer}>
               <View style={[styles.timelineDot, { backgroundColor: colors.accent }]} />
               <View style={styles.timelineLine}>
@@ -213,20 +214,20 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
               </View>
               <View style={[styles.timelineDot, { backgroundColor: colors.accent }]} />
             </View>
-            <Animated.Text style={timeTextStyle}>{journey.arrivalTime}</Animated.Text>
+            <Animated.Text style={timeTextStyle}>{journey.journey.arrivalTime}</Animated.Text>
           </View>
         </View>
 
         <View style={styles.headerRight}>
           <View style={styles.stationContainer}>
-            <Animated.Text style={stationNameStyle}>{journey.departureStation.name}</Animated.Text>
-            <Animated.Text style={travelTimeStyle}>{formatDuration(journey.duration)}</Animated.Text>
-            <Animated.Text style={stationNameStyle}>{journey.arrivalStation.name}</Animated.Text>
+            <Animated.Text style={stationNameStyle}>{journey.journey.departureStation.name}</Animated.Text>
+            <Animated.Text style={travelTimeStyle}>{formatDuration(journey.journey.duration)}</Animated.Text>
+            <Animated.Text style={stationNameStyle}>{journey.journey.arrivalStation.name}</Animated.Text>
           </View>
         </View>
 
         <Image 
-          source={journey.campany === 'ctm' 
+          source={campany === 'ctm' 
             ? (isDarkMode ? images.ctm.dark : images.ctm.light)
             : (isDarkMode ? images.oncf.dark : images.oncf.light)
           }
@@ -248,7 +249,7 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
       <View style={styles.priceCircleContainer}>
         <Animated.View style={priceCircleStyle}>
           <Animated.Text style={priceTextStyle}>
-            {formatCurrency(journey.price, journey.currency)}
+            {formatCurrency(journey.journey.price, journey.journey.currency)}
           </Animated.Text>
         </Animated.View>
       </View>
@@ -258,19 +259,19 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
 
         <View style={styles.detailRow}>
           <View style={styles.detailItem}>
-            {journey.campany === 'oncf' ? (
+            {campany === 'oncf' ? (
               <TrainFront size={16} color={colors.accent} />
             ) : (
               <BusFront size={16} color={colors.accent} />
             )}
             <Animated.Text style={detailTextStyle}>
-              {journey.campany === 'oncf' ? `Train ${journey.trainNumber}` : `Bus ${journey.trainNumber}`}
+              {campany === 'oncf' ? `Train ${journey.journey.trainNumber}` : `Bus ${journey.journey.trainNumber}`}
             </Animated.Text>
           </View>
 
           <View style={styles.detailItem}>
             <Clock size={16} color={colors.accent} />
-            <Animated.Text style={detailTextStyle}>{journey.duration}</Animated.Text>
+            <Animated.Text style={detailTextStyle}>{journey.journey.duration}</Animated.Text>
           </View>
         </View>
 
@@ -284,15 +285,15 @@ export function JourneyCard({ journey, isSaved, onToggleSave }: JourneyCardProps
               <View style={styles.stationDetail}>
                 <View style={[styles.stationDot, { backgroundColor: colors.primary }]} />
                 <View style={styles.stationInfo}>
-                  <Animated.Text style={detailTimeTextStyle}>{journey.departureTime}</Animated.Text>
-                  <Animated.Text style={detailStationTextStyle}>{journey.departureStation.name}</Animated.Text>
+                  <Animated.Text style={detailTimeTextStyle}>{journey.journey.departureTime}</Animated.Text>
+                  <Animated.Text style={detailStationTextStyle}>{journey.journey.departureStation.name}</Animated.Text>
                 </View>
               </View>
               <View style={styles.stationDetail}>
                 <View style={[styles.stationDot, { backgroundColor: colors.primary }]} />
                 <View style={styles.stationInfo}>
-                  <Animated.Text style={detailTimeTextStyle}>{journey.arrivalTime}</Animated.Text>
-                  <Animated.Text style={detailStationTextStyle}>{journey.arrivalStation.name}</Animated.Text>
+                  <Animated.Text style={detailTimeTextStyle}>{journey.journey.arrivalTime}</Animated.Text>
+                  <Animated.Text style={detailStationTextStyle}>{journey.journey.arrivalStation.name}</Animated.Text>
                 </View>
               </View>
             </View>

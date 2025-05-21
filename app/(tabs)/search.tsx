@@ -15,63 +15,60 @@ import { JourneyCard } from '../../components/JourneyCard';
 import { ChevronLeft, Calendar, MapPin } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
-import { JourneyDetails } from '@/types';
+import { Journey, JourneyDetails } from '@/types';
 
 export default function SearchScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Array<JourneyDetails & { isSaved: boolean }>>([]);
+  const [searchResults, setSearchResults] = useState<Array<Journey & { isSaved: boolean }>>([]);
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   const { colors, isDarkMode } = useTheme();
   
   // Sample search results data
   const sampleSearchResults = [
     {
-      campany: 'oncf',
-      id: '1',
-      departureTime: '08:30',
-      arrivalTime: '10:45',
-      duration: '2h 15m',
-      departureStation: { name: 'Casa Voyageurs', code: 'CVG' },
-      arrivalStation: { name: 'Tanger Ville', code: 'TNV' },
-      price: 75,
-      currency: 'DH',
-      trainNumber: 'A102',
-      isSaved: false,
-      co2Emission: '3.47',
-      distance: '1.7 km'
+      campany: "oncf",
+      index: 1,
+      journey: {
+        departureTime: "08:30",
+        departureStation: {
+          code: "200",
+          name: "casa voyageurs"
+        },
+        arrivalTime: "14:37",
+        arrivalStation: {
+          code: "303",
+          name: "tanger ville"
+        },
+        trainNumber: "V60008",
+        duration: "6h 7 min",
+        price: 190,
+        currency: "DH"
+      },
+      isSaved: false
     },
     {
-      campany: 'ctm',
-      id: '1',
-      departureTime: '08:30',
-      arrivalTime: '10:45',
-      duration: '2h 15m',
-      departureStation: { name: 'Casa Voyageurs', code: 'CVG' },
-      arrivalStation: { name: 'Tanger Ville', code: 'TNV' },
-      price: 180,
-      currency: 'DH',
-      trainNumber: 'A102',
-      isSaved: false,
-      co2Emission: '3.47',
-      distance: '1.7 km'
-    },
-    {
-      campany: 'oncf',
-      id: '1',
-      departureTime: '08:30',
-      arrivalTime: '10:45',
-      duration: '2h 15m',
-      departureStation: { name: 'Casa Voyageurs', code: 'CVG' },
-      arrivalStation: { name: 'Tanger Ville', code: 'TNV' },
-      price: 210,
-      currency: 'DH',
-      trainNumber: 'A102',
-      isSaved: false,
-      co2Emission: '3.47',
-      distance: '1.7 km'
-    },
+      campany: "ctm",
+      index: 2,
+      journey: {
+        departureTime: "08:30",
+        departureStation: {
+          code: "200",
+          name: "casa voyageurs"
+        },
+        arrivalTime: "14:37",
+        arrivalStation: {
+          code: "303",
+          name: "tanger ville"
+        },
+        trainNumber: "V60008",
+        duration: "6h 7 min",
+        price: 190,
+        currency: "DH"
+      },
+      isSaved: false
+    }
     // ... other sample results
   ];
 
@@ -86,10 +83,10 @@ export default function SearchScreen() {
     }, 1500);
   };
 
-  const handleToggleSave = (id: string) => {
+  const handleToggleSave = (id: number) => {
     setSearchResults(
       searchResults.map(journey => 
-        journey.id === id 
+        journey.index === id 
           ? { ...journey, isSaved: !journey.isSaved } 
           : journey
       )
@@ -140,11 +137,12 @@ export default function SearchScreen() {
             <View style={styles.resultsList}>
               {searchResults.map((journey) => (
                 <JourneyCard 
-                  key={journey.id}
+                  campany={journey.campany}
+                  key={journey.index}
                   journey={journey}
-                  index={parseInt(journey.id)}
+                  index={journey.index}
                   isSaved={journey.isSaved}
-                  onToggleSave={() => handleToggleSave(journey.id)}
+                  onToggleSave={() => handleToggleSave(journey.index)}
                 />
               ))}
             </View>

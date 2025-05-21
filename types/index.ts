@@ -4,8 +4,6 @@ export interface Station {
 }
 
 export interface JourneyDetails {
-  id: string;
-  campany: string;
   departureTime: string;
   departureStation: Station;
   arrivalTime: string;
@@ -17,6 +15,7 @@ export interface JourneyDetails {
 }
 
 export interface Journey {
+  campany: string;
   index: number;
   journey: JourneyDetails;
 }

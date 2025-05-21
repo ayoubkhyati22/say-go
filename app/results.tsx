@@ -15,30 +15,32 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 
 // Types from your existing components
 interface Station {
-  name: string;
   code: string;
+  name: string;
 }
 
 interface JourneyDetails {
-  campany: string,
-  id: string;
   departureTime: string;
-  arrivalTime: string;
-  duration: string;
   departureStation: Station;
+  arrivalTime: string;
   arrivalStation: Station;
+  trainNumber: string;
+  duration: string;
   price: number;
   currency: string;
-  trainNumber: string;
-  co2Emission?: string;
-  distance?: string;
+}
+
+interface Journey {
+  campany: string;
+  index: number;
+  journey: JourneyDetails;
 }
 
 export default function ResultsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [searchResults, setSearchResults] = useState<Array<JourneyDetails & { isSaved: boolean }>>([]);
+  const [searchResults, setSearchResults] = useState<Array<Journey & { isSaved: boolean }>>([]);
   
   // Extract search parameters
   const fromStation = params.from?.toString() || 'Casablanca';
@@ -55,49 +57,46 @@ export default function ResultsScreen() {
       // Sample search results
       const results = [
         {
-          campany:"oncf",
-          id: '1',
-          departureTime: '08:30',
-          arrivalTime: '10:45',
-          duration: '2h 15m',
-          departureStation: { name: fromStation, code: 'CVG' },
-          arrivalStation: { name: toStation, code: 'TNV' },
-          price: 75,
-          currency: 'DH',
-          trainNumber: 'A102',
-          isSaved: false,
-          co2Emission: '3.47',
-          distance: '1.7 km'
+          campany: "oncf",
+          index: 1,
+          journey: {
+            departureTime: "08:30",
+            departureStation: {
+              code: "200",
+              name: "casa voyageurs"
+            },
+            arrivalTime: "14:37",
+            arrivalStation: {
+              code: "303",
+              name: "tanger ville"
+            },
+            trainNumber: "V60008",
+            duration: "6h 7 min",
+            price: 190,
+            currency: "DH"
+          },
+          isSaved: false
         },
         {
-          campany:"ctm",
-          id: '2',
-          departureTime: '12:15',
-          arrivalTime: '15:30',
-          duration: '3h 15m',
-          departureStation: { name: fromStation, code: 'CVG' },
-          arrivalStation: { name: toStation, code: 'TNV' },
-          price: 180,
-          currency: 'DH',
-          trainNumber: 'B204',
-          isSaved: false,
-          co2Emission: '4.82',
-          distance: '1.7 km'
-        },
-        {
-          campany:"oncf",
-          id: '3',
-          departureTime: '16:00',
-          arrivalTime: '18:20',
-          duration: '2h 20m',
-          departureStation: { name: fromStation, code: 'CVG' },
-          arrivalStation: { name: toStation, code: 'TNV' },
-          price: 90,
-          currency: 'DH',
-          trainNumber: 'C306',
-          isSaved: false,
-          co2Emission: '3.21',
-          distance: '1.7 km'
+          campany: "oncf",
+          index: 2,
+          journey: {
+            departureTime: "08:30",
+            departureStation: {
+              code: "200",
+              name: "casa voyageurs"
+            },
+            arrivalTime: "14:37",
+            arrivalStation: {
+              code: "303",
+              name: "tanger ville"
+            },
+            trainNumber: "V60008",
+            duration: "6h 7 min",
+            price: 190,
+            currency: "DH"
+          },
+          isSaved: false
         }
       ];
       
@@ -112,10 +111,10 @@ export default function ResultsScreen() {
     router.back();
   };
 
-  const handleToggleSave = (id: string) => {
+  const handleToggleSave = (id: number) => {
     setSearchResults(
       searchResults.map(journey => 
-        journey.id === id 
+        journey.index === id 
           ? { ...journey, isSaved: !journey.isSaved } 
           : journey
       )
@@ -187,11 +186,12 @@ export default function ResultsScreen() {
           <View style={styles.resultsList}>
             {searchResults.map((journey) => (
               <JourneyCard 
-                key={journey.id}
+                campany={journey.campany}
+                key={journey.index}
                 journey={journey}
-                index={parseInt(journey.id)}
+                index={journey.index}
                 isSaved={journey.isSaved}
-                onToggleSave={() => handleToggleSave(journey.id)}
+                onToggleSave={() => handleToggleSave(journey.index)}
               />
             ))}
           </View>

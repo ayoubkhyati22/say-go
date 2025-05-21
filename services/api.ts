@@ -42,10 +42,9 @@ export async function searchTravelOptions(query: string): Promise<Journey[]> {
 function getMockJourneys(): Journey[] {
   return [
     {
+      campany: "oncf",
       index: 1,
       journey: {
-        id: 'V60008',
-        campany: "oncf",
         departureTime: "08:30",
         departureStation: {
           code: "200",

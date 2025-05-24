@@ -1,7 +1,7 @@
-import axios from 'axios';
 import { Journey } from '@/types';
 
-const API_URL = 'http://localhost:5678/webhook-test/843cdf57-fbf1-40ad-bb6f-05e5ed40eb34';
+// Update API URL to use HTTPS and relative path for web compatibility
+const API_URL = '/api/webhook-test/843cdf57-fbf1-40ad-bb6f-05e5ed40eb34';
 
 // Add debounce utility
 function debounce<T extends (...args: any[]) => Promise<any>>(
@@ -36,23 +36,30 @@ function debounce<T extends (...args: any[]) => Promise<any>>(
   };
 }
 
-// Debounced search function
+// Debounced search function with improved error handling
 export const searchTravelOptions = debounce(async (message: string): Promise<Journey[]> => {
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        // Add CORS headers for web compatibility
+        'Accept': 'application/json'
+      },
       body: JSON.stringify({ message }),
+      // Add credentials for cookies if needed
+      credentials: 'include'
     });
     
     if (!response.ok) {
-      throw new Error('API request failed');
+      throw new Error(`API request failed with status ${response.status}`);
     }
     
     const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error searching travel options:', error);
+    // Return mock data when API fails
     return getMockJourneys();
   }
 }, 300); // 300ms debounce delay

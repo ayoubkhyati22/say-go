@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -16,81 +16,13 @@ import { JourneyCard } from '../../components/JourneyCard';
 import { ChevronLeft, Calendar, MapPin } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
-import { Journey, JourneyDetails } from '@/types';
-import axios from 'axios';
-
-// API endpoint
-const API_URL = 'http://localhost:5678/webhook-test/843cdf57-fbf1-40ad-bb6f-05e5ed40eb34';
-
-// API function to search travel options
-async function searchTravelOptions(query: string): Promise<Journey[]> {
-  try {
-    const response = await axios.post(API_URL, {
-      message: query
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-    
-    if (!response.data) {
-      return getMockJourneys();
-    }
-    
-    // Transform the API response to match our Journey type
-    return response.data.map((item: any) => ({
-      company: item.company || item.campany, // Handle both spellings for backward compatibility
-      index: item.index,
-      journey: {
-        id: item.journey.id || item.journey.trainNumber, // Use id if available, otherwise use trainNumber
-        company: item.journey.company || item.journey.campany, // Handle both spellings
-        departureTime: item.journey.departureTime,
-        departureStation: item.journey.departureStation,
-        arrivalTime: item.journey.arrivalTime,
-        arrivalStation: item.journey.arrivalStation,
-        trainNumber: item.journey.trainNumber,
-        duration: item.journey.duration,
-        price: item.journey.price,
-        currency: item.journey.currency
-      }
-    }));
-  } catch (error) {
-    console.error('Error searching travel options:', error);
-    return getMockJourneys();
-  }
-}
-
-// Mock data function for fallbacks
-function getMockJourneys(): Journey[] {
-  return [
-    {
-      campany: "ctm", // Fixed typo from "campany" to "company"
-      index: 2,
-      journey: {
-        departureTime: "09:30",
-        departureStation: {
-          code: "200",
-          name: "casa voyageurs"
-        },
-        arrivalTime: "16:00",
-        arrivalStation: {
-          code: "303",
-          name: "tanger ville"
-        },
-        trainNumber: "B204",
-        duration: "6h 30 min",
-        price: 160,
-        currency: "DH"
-      }
-    }
-  ];
-}
+import { Journey } from '@/types';
+import { searchTravelOptions } from '@/services/api';
 
 export default function SearchScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Array<Journey & { isSaved: boolean }>>([]);
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   const { colors, isDarkMode } = useTheme();
@@ -99,7 +31,35 @@ export default function SearchScreen() {
   const fromStation = params.from?.toString() || 'Casa Voyageurs';
   const toStation = params.to?.toString() || 'Tanger Ville';
   const date = params.date?.toString() || 'Today';
-  
+
+  // Memoized search function to prevent recreating on every render
+  const handleSearch = useCallback(async (text: string) => {
+    if (!text.trim() || isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      const journeys = await searchTravelOptions(text);
+      const journeysWithSaveState = journeys.map(journey => ({
+        ...journey,
+        isSaved: false
+      }));
+      setSearchResults(journeysWithSaveState);
+      setHasPerformedSearch(true);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+      // Keep previous results on error
+      if (searchResults.length === 0) {
+        const mockJourneys = getMockJourneys().map(journey => ({
+          ...journey,
+          isSaved: false
+        }));
+        setSearchResults(mockJourneys);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLoading]);
+
   // Check if we have results passed from another screen
   useEffect(() => {
     if (params.results) {
@@ -113,41 +73,11 @@ export default function SearchScreen() {
         console.error('Error parsing results from params:', error);
       }
     }
-  }, [params]);
-
-  const handleSearch = async (text: string) => {
-    setSearchQuery(text);
-    setIsLoading(true);
-    
-    try {
-      // Call the API function to get real data
-      const journeys = await searchTravelOptions(text);
-      
-      // Add isSaved property to each journey
-      const journeysWithSaveState = journeys.map(journey => ({
-        ...journey,
-        isSaved: false // Default value
-      }));
-      
-      setSearchResults(journeysWithSaveState);
-      setHasPerformedSearch(true);
-    } catch (error) {
-      console.error('Error fetching search results:', error);
-      // Fallback to mock data on error
-      const mockJourneys = getMockJourneys().map(journey => ({
-        ...journey,
-        isSaved: false
-      }));
-      setSearchResults(mockJourneys);
-      setHasPerformedSearch(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [params.results]);
 
   const handleToggleSave = (id: number) => {
-    setSearchResults(
-      searchResults.map(journey => 
+    setSearchResults(prevResults =>
+      prevResults.map(journey => 
         journey.index === id 
           ? { ...journey, isSaved: !journey.isSaved } 
           : journey
@@ -155,9 +85,9 @@ export default function SearchScreen() {
     );
   };
 
-  const handleSearchSelect = (search: string) => {
+  const handleSearchSelect = useCallback((search: string) => {
     handleSearch(search);
-  };
+  }, [handleSearch]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -210,9 +140,7 @@ export default function SearchScreen() {
                     key={journeyItem.index}
                     index={journeyItem.index}
                     campany={journeyItem.campany}
-                    journey={{
-                      ...journeyItem,
-                    }}                 
+                    journey={journeyItem}
                     isSaved={journeyItem.isSaved}
                     onToggleSave={() => handleToggleSave(journeyItem.index)}
                   />

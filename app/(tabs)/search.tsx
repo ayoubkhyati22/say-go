@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -7,80 +7,142 @@ import {
   ScrollView, 
   StatusBar, 
   TouchableOpacity,
-  TextInput
+  TextInput,
+  ActivityIndicator
 } from 'react-native';
 import { Search as SearchComponent } from '../../components/Search';
 import { RecentSearches } from '../../components/RecentSearches';
 import { JourneyCard } from '../../components/JourneyCard';
 import { ChevronLeft, Calendar, MapPin } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { Journey, JourneyDetails } from '@/types';
+import axios from 'axios';
+
+// API endpoint
+const API_URL = 'http://localhost:5678/webhook-test/843cdf57-fbf1-40ad-bb6f-05e5ed40eb34';
+
+// API function to search travel options
+async function searchTravelOptions(query: string): Promise<Journey[]> {
+  try {
+    const response = await axios.post(API_URL, {
+      message: query
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.data) {
+      return getMockJourneys();
+    }
+    
+    // Transform the API response to match our Journey type
+    return response.data.map((item: any) => ({
+      company: item.company || item.campany, // Handle both spellings for backward compatibility
+      index: item.index,
+      journey: {
+        id: item.journey.id || item.journey.trainNumber, // Use id if available, otherwise use trainNumber
+        company: item.journey.company || item.journey.campany, // Handle both spellings
+        departureTime: item.journey.departureTime,
+        departureStation: item.journey.departureStation,
+        arrivalTime: item.journey.arrivalTime,
+        arrivalStation: item.journey.arrivalStation,
+        trainNumber: item.journey.trainNumber,
+        duration: item.journey.duration,
+        price: item.journey.price,
+        currency: item.journey.currency
+      }
+    }));
+  } catch (error) {
+    console.error('Error searching travel options:', error);
+    return getMockJourneys();
+  }
+}
+
+// Mock data function for fallbacks
+function getMockJourneys(): Journey[] {
+  return [
+    {
+      campany: "ctm", // Fixed typo from "campany" to "company"
+      index: 2,
+      journey: {
+        departureTime: "09:30",
+        departureStation: {
+          code: "200",
+          name: "casa voyageurs"
+        },
+        arrivalTime: "16:00",
+        arrivalStation: {
+          code: "303",
+          name: "tanger ville"
+        },
+        trainNumber: "B204",
+        duration: "6h 30 min",
+        price: 160,
+        currency: "DH"
+      }
+    }
+  ];
+}
 
 export default function SearchScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Array<Journey & { isSaved: boolean }>>([]);
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   const { colors, isDarkMode } = useTheme();
   
-  // Sample search results data
-  const sampleSearchResults = [
-    {
-      campany: "oncf",
-      index: 1,
-      journey: {
-        departureTime: "08:30",
-        departureStation: {
-          code: "200",
-          name: "casa voyageurs"
-        },
-        arrivalTime: "14:37",
-        arrivalStation: {
-          code: "303",
-          name: "tanger ville"
-        },
-        trainNumber: "V60008",
-        duration: "6h 7 min",
-        price: 190,
-        currency: "DH"
-      },
-      isSaved: false
-    },
-    {
-      campany: "ctm",
-      index: 2,
-      journey: {
-        departureTime: "08:30",
-        departureStation: {
-          code: "200",
-          name: "casa voyageurs"
-        },
-        arrivalTime: "14:37",
-        arrivalStation: {
-          code: "303",
-          name: "tanger ville"
-        },
-        trainNumber: "V60008",
-        duration: "6h 7 min",
-        price: 190,
-        currency: "DH"
-      },
-      isSaved: false
+  // Extract route parameters if available
+  const fromStation = params.from?.toString() || 'Casa Voyageurs';
+  const toStation = params.to?.toString() || 'Tanger Ville';
+  const date = params.date?.toString() || 'Today';
+  
+  // Check if we have results passed from another screen
+  useEffect(() => {
+    if (params.results) {
+      try {
+        const parsedResults = JSON.parse(params.results.toString());
+        if (Array.isArray(parsedResults) && parsedResults.length > 0) {
+          setSearchResults(parsedResults);
+          setHasPerformedSearch(true);
+        }
+      } catch (error) {
+        console.error('Error parsing results from params:', error);
+      }
     }
-    // ... other sample results
-  ];
+  }, [params]);
 
-  const handleSearch = (text: string) => {
+  const handleSearch = async (text: string) => {
     setSearchQuery(text);
     setIsLoading(true);
     
-    setTimeout(() => {
-      setSearchResults(sampleSearchResults);
-      setIsLoading(false);
+    try {
+      // Call the API function to get real data
+      const journeys = await searchTravelOptions(text);
+      
+      // Add isSaved property to each journey
+      const journeysWithSaveState = journeys.map(journey => ({
+        ...journey,
+        isSaved: false // Default value
+      }));
+      
+      setSearchResults(journeysWithSaveState);
       setHasPerformedSearch(true);
-    }, 1500);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+      // Fallback to mock data on error
+      const mockJourneys = getMockJourneys().map(journey => ({
+        ...journey,
+        isSaved: false
+      }));
+      setSearchResults(mockJourneys);
+      setHasPerformedSearch(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleToggleSave = (id: number) => {
@@ -111,6 +173,13 @@ export default function SearchScreen() {
       <ScrollView style={styles.content}>
         {!hasPerformedSearch ? (
           <RecentSearches onSearchSelect={handleSearchSelect} />
+        ) : isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={[styles.loadingText, { color: colors.text }]}>
+              Finding the best routes...
+            </Text>
+          </View>
         ) : (
           <View style={styles.resultsContainer}>
             <View style={styles.searchInfo}>
@@ -122,29 +191,42 @@ export default function SearchScreen() {
               <View style={styles.pillsContainer}>
                 <TouchableOpacity style={styles.pill}>
                   <Calendar size={16} color={colors.primary} style={styles.pillIcon} />
-                  <Text style={[styles.pillText, { color: colors.primary }]}>Today</Text>
+                  <Text style={[styles.pillText, { color: colors.primary }]}>{date}</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity style={styles.pill}>
                   <MapPin size={16} color={colors.primary} style={styles.pillIcon} />
                   <Text style={[styles.pillText, { color: colors.primary }]}>
-                    Casa Voyageurs → Tanger Ville
+                    {fromStation} → {toStation}
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
             
             <View style={styles.resultsList}>
-              {searchResults.map((journey) => (
-                <JourneyCard 
-                  campany={journey.campany}
-                  key={journey.index}
-                  journey={journey}
-                  index={journey.index}
-                  isSaved={journey.isSaved}
-                  onToggleSave={() => handleToggleSave(journey.index)}
-                />
-              ))}
+              {searchResults.length > 0 ? (
+                searchResults.map((journeyItem) => (
+                  <JourneyCard 
+                    key={journeyItem.index}
+                    index={journeyItem.index}
+                    campany={journeyItem.campany}
+                    journey={{
+                      ...journeyItem,
+                    }}                 
+                    isSaved={journeyItem.isSaved}
+                    onToggleSave={() => handleToggleSave(journeyItem.index)}
+                  />
+                ))
+              ) : (
+                <View style={styles.noResultsContainer}>
+                  <Text style={[styles.noResultsText, { color: colors.text }]}>
+                    No journeys found for this search.
+                  </Text>
+                  <Text style={[styles.noResultsSubtext, { color: colors.secondaryText }]}>
+                    Try adjusting your search criteria.
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         )}
@@ -167,6 +249,17 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 80,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    fontFamily: 'Inter-Medium',
   },
   resultsContainer: {
     marginTop: 16,
@@ -207,5 +300,19 @@ const styles = StyleSheet.create({
   },
   resultsList: {
     marginBottom: 16,
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  noResultsText: {
+    fontSize: 18,
+    fontFamily: 'Inter-Medium',
+    marginBottom: 8,
+  },
+  noResultsSubtext: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
   },
 });

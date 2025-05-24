@@ -6,6 +6,8 @@ import { JourneyCard } from '../../components/JourneyCard';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { Journey, JourneyDetails } from '@/types';
+import { searchTravelOptions } from '../../services/api';
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -62,14 +64,32 @@ export default function HomeScreen() {
     }
   ]);
 
-  const handleSearch = (text: string) => {
+  const handleSearch = async (text: string) => {
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const journeys = await searchTravelOptions(text);
+      
+      // Update with isSaved property for each journey
+      const journeysWithSaveState = journeys.map(journey => ({
+        ...journey,
+        isSaved: false // Default state
+      }));
+      
+      // You could store these in state if needed
+      // setSearchResults(journeysWithSaveState);
+      
+      // Navigate to search results
+      router.push({
+        pathname: '/search',
+        params: { results: JSON.stringify(journeysWithSaveState) }
+      });
+    } catch (error) {
+      console.error('Search error:', error);
+    } finally {
       setIsLoading(false);
-      router.push('/search');
-    }, 1500);
+    }
   };
-
+  
   const handleToggleSave = (id: string) => {
     console.log('Toggling save for journey:', id);
   };

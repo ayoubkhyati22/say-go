@@ -1,13 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { 
   StyleSheet, 
   View, 
   Text, 
   SafeAreaView, 
   ScrollView, 
-  StatusBar, 
-  TouchableOpacity,
-  TextInput,
+  TouchableOpacity, 
+  StatusBar,
   ActivityIndicator
 } from 'react-native';
 import { Search as SearchComponent } from '../../components/Search';
@@ -31,35 +30,7 @@ export default function SearchScreen() {
   const fromStation = params.from?.toString() || 'Casa Voyageurs';
   const toStation = params.to?.toString() || 'Tanger Ville';
   const date = params.date?.toString() || 'Today';
-
-  // Memoized search function to prevent recreating on every render
-  const handleSearch = useCallback(async (text: string) => {
-    if (!text.trim() || isLoading) return;
-    
-    setIsLoading(true);
-    try {
-      const journeys = await searchTravelOptions(text);
-      const journeysWithSaveState = journeys.map(journey => ({
-        ...journey,
-        isSaved: false
-      }));
-      setSearchResults(journeysWithSaveState);
-      setHasPerformedSearch(true);
-    } catch (error) {
-      console.error('Error fetching search results:', error);
-      // Keep previous results on error
-      if (searchResults.length === 0) {
-        const mockJourneys = getMockJourneys().map(journey => ({
-          ...journey,
-          isSaved: false
-        }));
-        setSearchResults(mockJourneys);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading]);
-
+  
   // Check if we have results passed from another screen
   useEffect(() => {
     if (params.results) {
@@ -75,9 +46,31 @@ export default function SearchScreen() {
     }
   }, [params.results]);
 
+  const handleSearch = async (text: string) => {
+    setIsLoading(true);
+    try {
+      const journeys = await searchTravelOptions(text);
+      const journeysWithSaveState = journeys.map(journey => ({
+        ...journey,
+        isSaved: false
+      }));
+      setSearchResults(journeysWithSaveState);
+      setHasPerformedSearch(true);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+      const mockJourneys = getMockJourneys().map(journey => ({
+        ...journey,
+        isSaved: false
+      }));
+      setSearchResults(mockJourneys);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleToggleSave = (id: number) => {
-    setSearchResults(prevResults =>
-      prevResults.map(journey => 
+    setSearchResults(
+      searchResults.map(journey => 
         journey.index === id 
           ? { ...journey, isSaved: !journey.isSaved } 
           : journey
@@ -85,9 +78,9 @@ export default function SearchScreen() {
     );
   };
 
-  const handleSearchSelect = useCallback((search: string) => {
+  const handleSearchSelect = (search: string) => {
     handleSearch(search);
-  }, [handleSearch]);
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

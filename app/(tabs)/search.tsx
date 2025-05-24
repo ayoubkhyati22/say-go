@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef  } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -12,61 +12,57 @@ import {
 import { Search as SearchComponent } from '../../components/Search';
 import { RecentSearches } from '../../components/RecentSearches';
 import { JourneyCard } from '../../components/JourneyCard';
-import { ChevronLeft, Calendar, MapPin } from 'lucide-react-native';
+import { Calendar, MapPin } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { Journey } from '@/types';
-import { searchTravelOptions } from '@/services/api';
 
 export default function SearchScreen() {
-  const router = useRouter();
   const params = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<Array<Journey & { isSaved: boolean }>>([]);
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   const { colors, isDarkMode } = useTheme();
   
-  // Extract route parameters if available
   const fromStation = params.from?.toString() || 'Casa Voyageurs';
   const toStation = params.to?.toString() || 'Tanger Ville';
   const date = params.date?.toString() || 'Today';
-  
-  // Check if we have results passed from another screen
-  useEffect(() => {
-    if (params.results) {
-      try {
-        const parsedResults = JSON.parse(params.results.toString());
-        if (Array.isArray(parsedResults) && parsedResults.length > 0) {
-          setSearchResults(parsedResults);
-          setHasPerformedSearch(true);
-        }
-      } catch (error) {
-        console.error('Error parsing results from params:', error);
-      }
-    }
-  }, [params.results]);
 
-  const handleSearch = async (text: string) => {
-    setIsLoading(true);
-    try {
-      const journeys = await searchTravelOptions(text);
-      const journeysWithSaveState = journeys.map(journey => ({
-        ...journey,
-        isSaved: false
-      }));
-      setSearchResults(journeysWithSaveState);
-      setHasPerformedSearch(true);
-    } catch (error) {
-      console.error('Error fetching search results:', error);
-      const mockJourneys = getMockJourneys().map(journey => ({
-        ...journey,
-        isSaved: false
-      }));
-      setSearchResults(mockJourneys);
-    } finally {
-      setIsLoading(false);
-    }
+const handleSearch = async (text: string) => {
+  setIsLoading(true);
+  
+  const requestData = {
+    url: 'http://localhost:5678/webhook/843cdf57-fbf1-40ad-bb6f-05e5ed40eb34',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: text })
   };
+  
+  console.log('🚀 Making API request:', requestData);
+  
+  try {
+    const result = await fetch(requestData.url, {
+      method: requestData.method,
+      headers: requestData.headers,
+      body: requestData.body
+    });
+    
+    console.log('📡 Response status:', result.status);
+    console.log('📡 Response headers:', result.headers);
+    
+    if (!result.ok) {
+      throw new Error(`API request failed with status ${result.status}`);
+    }
+    
+    const data = await result.json();
+    setSearchResults(data);
+    console.log('✅ API response:', data);
+  } catch (error) {
+    console.error('❌ API Error:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleToggleSave = (id: number) => {
     setSearchResults(

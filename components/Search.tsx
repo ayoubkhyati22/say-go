@@ -31,13 +31,21 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingError, setRecordingError] = useState<string | null>(null);
   const [recognizedText, setRecognizedText] = useState<string>('');
+  const [speechSupported, setSpeechSupported] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const waveformOpacity = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
   
+  // Web Speech API references
+  const recognitionRef = useRef<any>(null);
+  const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
-    // Only initialize voice recognition on native platforms
-    if (Platform.OS !== 'web' && Voice) {
+    if (Platform.OS === 'web') {
+      // Initialize Web Speech API
+      initializeWebSpeech();
+    } else if (Voice) {
+      // Initialize React Native Voice
       Voice.onSpeechResults = onSpeechResults;
       Voice.onSpeechError = onSpeechError;
       Voice.onSpeechEnd = onSpeechEnd;
@@ -48,20 +56,74 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
     }
   }, []);
 
+  // Web Speech API initialization
+  const initializeWebSpeech = () => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (SpeechRecognition) {
+        setSpeechSupported(true);
+        const recognition = new SpeechRecognition();
+        
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        
+        recognition.onstart = () => {
+          console.log('Speech recognition started');
+          setIsRecording(true);
+          setRecordingError(null);
+        };
+        
+        recognition.onresult = (event) => {
+          let interimTranscript = '';
+          let finalTranscript = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+          
+          const currentText = finalTranscript || interimTranscript;
+          setRecognizedText(currentText);
+          setSearchText(currentText);
+          
+          // Auto-submit if we have a final result
+          if (finalTranscript) {
+            handleSearchSubmit(finalTranscript);
+          }
+        };
+        
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          setRecordingError(`Voice recognition error: ${event.error}`);
+          stopWebSpeechRecording();
+        };
+        
+        recognition.onend = () => {
+          console.log('Speech recognition ended');
+          stopWebSpeechRecording();
+        };
+        
+        recognitionRef.current = recognition;
+      } else {
+        setSpeechSupported(false);
+        setRecordingError('Speech recognition is not supported in this browser.');
+      }
+    }
+  };
+
+  // Native Voice handlers
   const onSpeechResults = async (e: any) => {
     if (e.value && e.value.length > 0) {
       const text = e.value[0];
       setRecognizedText(text);
       setSearchText(text);
-      
-      try {
-        const results = await searchTravelOptions(text);
-        if (results && results.length > 0) {
-          onSearch(text);
-        }
-      } catch (error) {
-        console.error('Error searching travel options:', error);
-      }
+      handleSearchSubmit(text);
     }
   };
 
@@ -74,9 +136,24 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
     stopRecording();
   };
 
-  const startRecording = async () => {
-    if (Platform.OS === 'web') {
-      setRecordingError('Voice recognition is not available on web.');
+  // Common search submit handler
+  const handleSearchSubmit = async (text: string) => {
+    if (text.trim()) {
+      try {
+        const results = await searchTravelOptions(text);
+        if (results && results.length > 0) {
+          onSearch(text);
+        }
+      } catch (error) {
+        console.error('Error searching travel options:', error);
+      }
+    }
+  };
+
+  // Start recording for web
+  const startWebSpeechRecording = () => {
+    if (!speechSupported || !recognitionRef.current) {
+      setRecordingError('Speech recognition is not available.');
       return;
     }
 
@@ -84,61 +161,123 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
     setRecognizedText('');
     
     try {
+      recognitionRef.current.start();
+      
+      // Set a timeout to automatically stop recording after 30 seconds
+      speechTimeoutRef.current = setTimeout(() => {
+        stopWebSpeechRecording();
+      }, 30000);
+      
+      // Start animations
+      startRecordingAnimations();
+    } catch (error) {
+      console.error('Error starting web speech recognition:', error);
+      setRecordingError('Unable to start recording.');
+    }
+  };
+
+  // Stop recording for web
+  const stopWebSpeechRecording = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Error stopping web speech recognition:', error);
+      }
+    }
+    
+    if (speechTimeoutRef.current) {
+      clearTimeout(speechTimeoutRef.current);
+      speechTimeoutRef.current = null;
+    }
+    
+    setIsRecording(false);
+    stopRecordingAnimations();
+  };
+
+  // Start recording for native
+  const startNativeRecording = async () => {
+    setRecordingError(null);
+    setRecognizedText('');
+    
+    try {
       await Voice.start('en-US');
       setIsRecording(true);
-      
-      // Animate the waveform to fade in
-      Animated.timing(waveformOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-      
-      // Animate the button to pulse
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(buttonScale, {
-            toValue: 1.1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(buttonScale, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-      
+      startRecordingAnimations();
     } catch (e) {
       console.error(e);
       setRecordingError('Unable to start recording.');
     }
   };
 
-  const stopRecording = async () => {
-    if (Platform.OS === 'web') return;
-
+  // Stop recording for native
+  const stopNativeRecording = async () => {
     try {
       await Voice.stop();
     } catch (e) {
       console.error(e);
     } finally {
       setIsRecording(false);
-      
-      // Stop animations
-      Animated.timing(waveformOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-      
-      buttonScale.stopAnimation();
-      Animated.timing(buttonScale, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }).start();
+      stopRecordingAnimations();
+    }
+  };
+
+  // Animation helpers
+  const startRecordingAnimations = () => {
+    // Animate the waveform to fade in
+    Animated.timing(waveformOpacity, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+    
+    // Animate the button to pulse
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(buttonScale, {
+          toValue: 1.1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(buttonScale, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
+  const stopRecordingAnimations = () => {
+    // Stop animations
+    Animated.timing(waveformOpacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+    
+    buttonScale.stopAnimation();
+    Animated.timing(buttonScale, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Universal recording handlers
+  const startRecording = () => {
+    if (Platform.OS === 'web') {
+      startWebSpeechRecording();
+    } else {
+      startNativeRecording();
+    }
+  };
+
+  const stopRecording = () => {
+    if (Platform.OS === 'web') {
+      stopWebSpeechRecording();
+    } else {
+      stopNativeRecording();
     }
   };
 
@@ -162,16 +301,12 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
 
   const handleSubmit = async () => {
     if (searchText.trim()) {
-      try {
-        const results = await searchTravelOptions(searchText);
-        if (results && results.length > 0) {
-          onSearch(searchText);
-        }
-      } catch (error) {
-        console.error('Error searching travel options:', error);
-      }
+      handleSearchSubmit(searchText);
     }
   };
+
+  // Check if voice is available
+  const isVoiceAvailable = Platform.OS === 'web' ? speechSupported : true;
 
   return (
     <View style={styles.container}>
@@ -209,34 +344,36 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
           )}
         </View>
         
-        <Animated.View 
-          style={[
-            styles.micButtonContainer,
-            { transform: [{ scale: buttonScale }] }
-          ]}
-        >
-          <TouchableOpacity
+        {isVoiceAvailable && (
+          <Animated.View 
             style={[
-              styles.micButton,
-              { 
-                backgroundColor: colors.card,
-                borderColor: colors.border,
-                shadowOpacity: isDarkMode ? 0.2 : 0.1,
-              },
-              isRecording && { 
-                backgroundColor: colors.primary,
-                borderColor: colors.primary 
-              }
+              styles.micButtonContainer,
+              { transform: [{ scale: buttonScale }] }
             ]}
-            onPress={handleMicPress}
-            disabled={isLoading}
           >
-            <Mic 
-              size={22} 
-              color={isRecording ? "#FFFFFF" : colors.primary} 
-            />
-          </TouchableOpacity>
-        </Animated.View>
+            <TouchableOpacity
+              style={[
+                styles.micButton,
+                { 
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                  shadowOpacity: isDarkMode ? 0.2 : 0.1,
+                },
+                isRecording && { 
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary 
+                }
+              ]}
+              onPress={handleMicPress}
+              disabled={isLoading}
+            >
+              <Mic 
+                size={22} 
+                color={isRecording ? "#FFFFFF" : colors.primary} 
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        )}
       </View>
       
       <Animated.View 

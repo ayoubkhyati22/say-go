@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { 
-  StyleSheet, 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  TouchableOpacity,
   ActivityIndicator,
   Animated,
   Text,
-  Platform
+  Platform,
+  Image
 } from 'react-native';
 import { Mic, Search as SearchIcon, X } from 'lucide-react-native';
 import { VoiceWaveform } from './VoiceWaveform';
@@ -35,11 +36,11 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   const inputRef = useRef<TextInput>(null);
   const waveformOpacity = useRef(new Animated.Value(0)).current;
   const buttonScale = useRef(new Animated.Value(1)).current;
-  
+
   // Web Speech API references
   const recognitionRef = useRef<any>(null);
   const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
     if (Platform.OS === 'web') {
       // Initialize Web Speech API
@@ -60,25 +61,25 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   const initializeWebSpeech = () => {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
+
       if (SpeechRecognition) {
         setSpeechSupported(true);
         const recognition = new SpeechRecognition();
-        
+
         recognition.continuous = false;
         recognition.interimResults = true;
         recognition.lang = 'en-US';
-        
+
         recognition.onstart = () => {
           console.log('Speech recognition started');
           setIsRecording(true);
           setRecordingError(null);
         };
-        
+
         recognition.onresult = (event) => {
           let interimTranscript = '';
           let finalTranscript = '';
-          
+
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
@@ -87,28 +88,28 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
               interimTranscript += transcript;
             }
           }
-          
+
           const currentText = finalTranscript || interimTranscript;
           setRecognizedText(currentText);
           setSearchText(currentText);
-          
+
           // Auto-submit if we have a final result
           if (finalTranscript) {
             handleSearchSubmit(finalTranscript);
           }
         };
-        
+
         recognition.onerror = (event) => {
           console.error('Speech recognition error:', event.error);
           setRecordingError(`Voice recognition error: ${event.error}`);
           stopWebSpeechRecording();
         };
-        
+
         recognition.onend = () => {
           console.log('Speech recognition ended');
           stopWebSpeechRecording();
         };
-        
+
         recognitionRef.current = recognition;
       } else {
         setSpeechSupported(false);
@@ -159,15 +160,15 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
 
     setRecordingError(null);
     setRecognizedText('');
-    
+
     try {
       recognitionRef.current.start();
-      
+
       // Set a timeout to automatically stop recording after 30 seconds
       speechTimeoutRef.current = setTimeout(() => {
         stopWebSpeechRecording();
       }, 30000);
-      
+
       // Start animations
       startRecordingAnimations();
     } catch (error) {
@@ -185,12 +186,12 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
         console.error('Error stopping web speech recognition:', error);
       }
     }
-    
+
     if (speechTimeoutRef.current) {
       clearTimeout(speechTimeoutRef.current);
       speechTimeoutRef.current = null;
     }
-    
+
     setIsRecording(false);
     stopRecordingAnimations();
   };
@@ -199,7 +200,7 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
   const startNativeRecording = async () => {
     setRecordingError(null);
     setRecognizedText('');
-    
+
     try {
       await Voice.start('en-US');
       setIsRecording(true);
@@ -230,7 +231,7 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
       duration: 300,
       useNativeDriver: true,
     }).start();
-    
+
     // Animate the button to pulse
     Animated.loop(
       Animated.sequence([
@@ -255,7 +256,7 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
       duration: 200,
       useNativeDriver: true,
     }).start();
-    
+
     buttonScale.stopAnimation();
     Animated.timing(buttonScale, {
       toValue: 1,
@@ -312,8 +313,8 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
     <View style={styles.container}>
       <View style={styles.searchContainer}>
         <View style={[
-          styles.inputContainer, 
-          { 
+          styles.inputContainer,
+          {
             backgroundColor: colors.card,
             shadowOpacity: isDarkMode ? 0.2 : 0.05,
             borderWidth: 1,
@@ -332,8 +333,8 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
             editable={!isRecording && !isLoading}
           />
           {searchText.length > 0 && !isLoading && (
-            <TouchableOpacity 
-              style={styles.clearButton} 
+            <TouchableOpacity
+              style={styles.clearButton}
               onPress={handleClearText}
             >
               <X size={18} color={colors.secondaryText} />
@@ -343,9 +344,9 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
             <ActivityIndicator size="small" color={colors.primary} style={styles.loader} />
           )}
         </View>
-        
+
         {isVoiceAvailable && (
-          <Animated.View 
+          <Animated.View
             style={[
               styles.micButtonContainer,
               { transform: [{ scale: buttonScale }] }
@@ -354,40 +355,40 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
             <TouchableOpacity
               style={[
                 styles.micButton,
-                { 
+                {
                   backgroundColor: colors.card,
                   borderColor: colors.border,
                   shadowOpacity: isDarkMode ? 0.2 : 0.1,
                 },
-                isRecording && { 
+                isRecording && {
                   backgroundColor: colors.primary,
-                  borderColor: colors.primary 
+                  borderColor: colors.primary
                 }
               ]}
               onPress={handleMicPress}
               disabled={isLoading}
             >
-              <Mic 
-                size={22} 
-                color={isRecording ? "#FFFFFF" : colors.primary} 
+              <Mic
+                size={22}
+                color={isRecording ? "#FFFFFF" : colors.primary}
               />
             </TouchableOpacity>
           </Animated.View>
         )}
       </View>
-      
-      <Animated.View 
+
+      <Animated.View
         style={[
-          styles.waveformContainer, 
+          styles.waveformContainer,
           { opacity: waveformOpacity }
         ]}
       >
         {isRecording && <VoiceWaveform />}
       </Animated.View>
-      
+
       {recordingError && (
         <Text style={[
-          styles.errorText, 
+          styles.errorText,
           { color: colors.error || '#FF3B30' }
         ]}>
           {recordingError}
@@ -410,7 +411,7 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    marginBottom: 0,
   },
   searchContainer: {
     flexDirection: 'row',

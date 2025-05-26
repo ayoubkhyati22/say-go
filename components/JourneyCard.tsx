@@ -54,7 +54,7 @@ export function JourneyCard({ journey, campany, isSaved, onToggleSave }: Journey
   };
 
   const formatDuration = (duration: string) => {
-    return duration.replace('min', 'minutes').replace('h', 'hours');
+    return duration.replace('min', 'min').replace('h', 'h');
   };
 
   // Create animated styles for themed colors

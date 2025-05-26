@@ -44,7 +44,7 @@ function getMockJourneys(): Journey[] {
           name: "tanger ville"
         },
         trainNumber: "V60008",
-        duration: "6h 7 min",
+        duration: "2h 20 min",
         price: 210,
         currency: "DH"
       }

@@ -12,7 +12,7 @@ export function RecentSearches({ onSearchSelect }: RecentSearchesProps) {
   // Mock data for recent searches
   const recentSearches = [
     'Casa Voyageurs to Tanger Ville Tomorrow',
-    'Rabat Agdal to Fes 22 mai'
+    'Rabat Agdal to Fes 29 mai'
   ];
 
   // Mock data for popular destinations

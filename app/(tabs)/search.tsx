@@ -1,4 +1,4 @@
-import { useState, useRef  } from 'react';
+import { useState, useCallback } from 'react';
 import { 
   StyleSheet, 
   View, 
@@ -16,6 +16,8 @@ import { Calendar, MapPin } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { Journey } from '@/types';
+import { searchTravelOptions } from '@/services/api';
+import Toast from 'react-native-toast-message';
 
 export default function SearchScreen() {
   const params = useLocalSearchParams();
@@ -28,47 +30,36 @@ export default function SearchScreen() {
   const toStation = params.to?.toString() || 'Tanger Ville';
   const date = params.date?.toString() || 'Today';
 
-const handleSearch = async (text: string) => {
-  setIsLoading(true);
-  
-  const requestData = {
-    url: 'http://localhost:5678/webhook/843cdf57-fbf1-40ad-bb6f-05e5ed40eb34',
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: text })
-  };
-  
-  console.log('🚀 Making API request:', requestData);
-  
-  try {
-    const result = await fetch(requestData.url, {
-      method: requestData.method,
-      headers: requestData.headers,
-      body: requestData.body
-    });
+  const handleSearch = useCallback(async (text: string) => {
+    setIsLoading(true);
+    setHasPerformedSearch(true);
     
-    console.log('📡 Response status:', result.status);
-    console.log('📡 Response headers:', result.headers);
-    
-    if (!result.ok) {
-      throw new Error(`API request failed with status ${result.status}`);
+    try {
+      const results = await searchTravelOptions(text);
+      const resultsWithSaveState = results.map(journey => ({
+        ...journey,
+        isSaved: false
+      }));
+      setSearchResults(resultsWithSaveState);
+    } catch (error) {
+      console.error('Search error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Search Error',
+        text2: 'Unable to fetch search results. Please try again.',
+        position: 'bottom'
+      });
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
     }
-    
-    const data = await result.json();
-    setSearchResults(data);
-    console.log('✅ API response:', data);
-  } catch (error) {
-    console.error('❌ API Error:', error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  }, []);
 
   const handleToggleSave = (id: number) => {
-    setSearchResults(
-      searchResults.map(journey => 
-        journey.index === id 
-          ? { ...journey, isSaved: !journey.isSaved } 
+    setSearchResults(prevResults =>
+      prevResults.map(journey =>
+        journey.index === id
+          ? { ...journey, isSaved: !journey.isSaved }
           : journey
       )
     );
@@ -150,6 +141,7 @@ const handleSearch = async (text: string) => {
         
         <View style={{ height: 80 }} />
       </ScrollView>
+      <Toast />
     </SafeAreaView>
   );
 }

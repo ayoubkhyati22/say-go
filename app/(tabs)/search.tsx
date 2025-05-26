@@ -31,6 +31,8 @@ export default function SearchScreen() {
   const date = params.date?.toString() || 'Today';
 
   const handleSearch = useCallback(async (text: string) => {
+    if (isLoading) return; // Prevent multiple simultaneous searches
+    
     setIsLoading(true);
     setHasPerformedSearch(true);
     
@@ -53,7 +55,7 @@ export default function SearchScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isLoading]);
 
   const handleToggleSave = (id: number) => {
     setSearchResults(prevResults =>

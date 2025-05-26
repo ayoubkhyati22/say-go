@@ -21,6 +21,7 @@ interface Station {
 
 interface JourneyDetails {
   departureTime: string;
+  departureDate: string;
   departureStation: Station;
   arrivalTime: string;
   arrivalStation: Station;

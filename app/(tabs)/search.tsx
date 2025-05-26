@@ -26,9 +26,9 @@ export default function SearchScreen() {
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   const { colors, isDarkMode } = useTheme();
   
-  const fromStation = params.from?.toString() || 'Casa Voyageurs';
-  const toStation = params.to?.toString() || 'Tanger Ville';
-  const date = params.date?.toString() || 'Today';
+  const fromStation = searchResults[0]?.journey?.departureStation?.name || 'Undefined';
+  const toStation = searchResults[0]?.journey?.arrivalStation?.name || 'Undefined';
+  const date = searchResults[0]?.journey?.departureDate || 'Undefined';
 
   const handleSearch = useCallback(async (text: string) => {
     if (isLoading) return; // Prevent multiple simultaneous searches

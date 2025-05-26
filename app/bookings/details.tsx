@@ -2,8 +2,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from '
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, CircleCheck as CheckCircle, Circle as XCircle, Clock, MapPin, Calendar, Info, CreditCard, Share, Car, Building2, PlaneTakeoff } from 'lucide-react-native';
-import { useTheme } from '@/context/ThemeContext';
-import { getBookingById } from '@/data/travelData';
+import { useTheme } from '../../context/ThemeContext';
+import { getBookingById } from '../../data/travelData';
 
 export default function BookingDetailsScreen() {
   const { id } = useLocalSearchParams();

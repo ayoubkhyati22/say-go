@@ -4,8 +4,8 @@ import { Search } from '../../components/Search';
 import { RecentSearches } from '../../components/RecentSearches';
 import { JourneyCard } from '../../components/JourneyCard';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/context/ThemeContext';
-import { Journey, JourneyDetails } from '@/types';
+import { useTheme } from '../../context/ThemeContext';
+import { Journey, JourneyDetails } from '../../types';
 import { searchTravelOptions } from '../../services/api';
 
 

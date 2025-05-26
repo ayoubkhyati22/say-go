@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { useFonts } from 'expo-font';
 import { 
   Inter_400Regular, 
@@ -10,7 +10,7 @@ import {
   Inter_700Bold 
 } from '@expo-google-fonts/inter';
 import { SplashScreen } from 'expo-router';
-import { ThemeProvider } from '@/context/ThemeContext';
+import { ThemeProvider } from '../context/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
 

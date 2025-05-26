@@ -12,14 +12,14 @@ import {
 } from 'react-native';
 import { Mic, Search as SearchIcon, X } from 'lucide-react-native';
 import { VoiceWaveform } from './VoiceWaveform';
-import { useTheme } from '@/context/ThemeContext';
-import { searchTravelOptions } from '@/services/api';
+import { useTheme } from './../context/ThemeContext';
+import { searchTravelOptions } from '../services/api';
 
 // Only import Voice on native platforms
 let Voice: any;
-if (Platform.OS !== 'web') {
-  Voice = require('@react-native-voice/voice').default;
-}
+// if (Platform.OS !== 'web') {
+//   Voice = require('@react-native-voice/voice').default;
+// }
 
 interface SearchProps {
   onSearch: (text: string) => void;
@@ -59,63 +59,63 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
 
   // Web Speech API initialization
   const initializeWebSpeech = () => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // if (typeof window !== 'undefined') {
+    //   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-      if (SpeechRecognition) {
-        setSpeechSupported(true);
-        const recognition = new SpeechRecognition();
+    //   if (SpeechRecognition) {
+    //     setSpeechSupported(true);
+    //     const recognition = new SpeechRecognition();
 
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
+    //     recognition.continuous = false;
+    //     recognition.interimResults = true;
+    //     recognition.lang = 'en-US';
 
-        recognition.onstart = () => {
-          console.log('Speech recognition started');
-          setIsRecording(true);
-          setRecordingError(null);
-        };
+    //     recognition.onstart = () => {
+    //       console.log('Speech recognition started');
+    //       setIsRecording(true);
+    //       setRecordingError(null);
+    //     };
 
-        recognition.onresult = (event) => {
-          let interimTranscript = '';
-          let finalTranscript = '';
+    //     recognition.onresult = (event:any) => {
+    //       let interimTranscript = '';
+    //       let finalTranscript = '';
 
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              finalTranscript += transcript;
-            } else {
-              interimTranscript += transcript;
-            }
-          }
+    //       for (let i = event.resultIndex; i < event.results.length; i++) {
+    //         const transcript = event.results[i][0].transcript;
+    //         if (event.results[i].isFinal) {
+    //           finalTranscript += transcript;
+    //         } else {
+    //           interimTranscript += transcript;
+    //         }
+    //       }
 
-          const currentText = finalTranscript || interimTranscript;
-          setRecognizedText(currentText);
-          setSearchText(currentText);
+    //       const currentText = finalTranscript || interimTranscript;
+    //       setRecognizedText(currentText);
+    //       setSearchText(currentText);
 
-          // Auto-submit if we have a final result
-          if (finalTranscript) {
-            handleSearchSubmit(finalTranscript);
-          }
-        };
+    //       // Auto-submit if we have a final result
+    //       if (finalTranscript) {
+    //         handleSearchSubmit(finalTranscript);
+    //       }
+    //     };
 
-        recognition.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
-          setRecordingError(`Voice recognition error: ${event.error}`);
-          stopWebSpeechRecording();
-        };
+    //     recognition.onerror = (event:any) => {
+    //       console.error('Speech recognition error:', event.error);
+    //       setRecordingError(`Voice recognition error: ${event.error}`);
+    //       stopWebSpeechRecording();
+    //     };
 
-        recognition.onend = () => {
-          console.log('Speech recognition ended');
-          stopWebSpeechRecording();
-        };
+    //     recognition.onend = () => {
+    //       console.log('Speech recognition ended');
+    //       stopWebSpeechRecording();
+    //     };
 
-        recognitionRef.current = recognition;
-      } else {
-        setSpeechSupported(false);
-        setRecordingError('Speech recognition is not supported in this browser.');
-      }
-    }
+    //     recognitionRef.current = recognition;
+    //   } else {
+    //     setSpeechSupported(false);
+    //     setRecordingError('Speech recognition is not supported in this browser.');
+    //   }
+    // }
   };
 
   // Native Voice handlers
@@ -165,9 +165,9 @@ export function Search({ onSearch, isLoading = false }: SearchProps) {
       recognitionRef.current.start();
 
       // Set a timeout to automatically stop recording after 30 seconds
-      speechTimeoutRef.current = setTimeout(() => {
-        stopWebSpeechRecording();
-      }, 30000);
+      // speechTimeoutRef.current = setTimeout(() => {
+      //   stopWebSpeechRecording();
+      // }, 30000);
 
       // Start animations
       startRecordingAnimations();

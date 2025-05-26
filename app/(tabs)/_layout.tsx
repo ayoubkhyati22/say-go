@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Search as SearchIcon, Calendar, User, Telescope, House } from 'lucide-react-native';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function TabLayout() {
   const { colors, isDarkMode } = useTheme();

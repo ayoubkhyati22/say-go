@@ -1,4 +1,4 @@
-import { Hotel, Ride, Flight } from '@/data/travelData';
+import { Hotel, Ride, Flight } from '../data/travelData';
 
 // Mock database of rides
 const ridesDatabase: Ride[] = [

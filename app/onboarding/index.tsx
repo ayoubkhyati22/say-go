@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronRight, ChevronLeft } from 'lucide-react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 type OnboardingSlide = {
   id: number;

@@ -1,11 +1,14 @@
 {
+  "cli": {
+    "version": ">= 3.0.0",
+    "appVersionSource": "remote"
+  },
   "build": {
     "preview": {
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
         "env": {
-          "GRADLE_OPTS": "-Dorg.gradle.jvmargs='-Xmx2048m -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError'"
+          "NODE_ENV": "production"
         }
       }
     },
@@ -14,9 +17,5 @@
         "buildType": "app-bundle"
       }
     }
-  },
-  "cli": {
-    "version": ">= 0.34.1",
-    "requireCommit": false
   }
 }

@@ -6,7 +6,7 @@ import Animated, {
   interpolateColor,
   useSharedValue 
 } from 'react-native-reanimated';
-import { lightTheme, darkTheme } from '@/styles/theme';
+import { lightTheme, darkTheme } from '../styles/theme';
 
 type ThemeType = 'light' | 'dark' | 'system';
 

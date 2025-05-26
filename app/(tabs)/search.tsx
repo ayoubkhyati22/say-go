@@ -15,9 +15,9 @@ import { RecentSearches } from '../../components/RecentSearches';
 import { JourneyCard } from '../../components/JourneyCard';
 import { BusFront, Calendar, ClockArrowDown, DollarSign, MapPin, TrainFront } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { useTheme } from '@/context/ThemeContext';
-import { Journey } from '@/types';
-import { searchTravelOptions } from '@/services/api';
+import { useTheme } from '../../context/ThemeContext';
+import { Journey } from '../../types';
+import { searchTravelOptions } from '../../services/api';
 import Toast from 'react-native-toast-message';
 
 type FilterType = 'cheapest' | 'fast' | 'train' | 'bus' | null;

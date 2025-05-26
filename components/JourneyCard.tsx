@@ -1,8 +1,8 @@
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useState, useRef, useMemo } from 'react';
 import { BookmarkCheck, Bookmark, Clock, TrainFront, BusFront } from 'lucide-react-native';
-import { Journey } from '@/types';
-import { useTheme } from '@/context/ThemeContext';
+import { Journey } from '../types';
+import { useTheme } from './../context/ThemeContext';
 import Animated, { 
   useAnimatedStyle, 
   withTiming, 

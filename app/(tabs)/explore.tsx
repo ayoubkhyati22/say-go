@@ -12,7 +12,7 @@ import {
 import { Search } from '../../components/Search';
 import { MapPin, Calendar, Star, Navigation2, ChevronRight, Leaf, Brain as Train } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 interface PopularDestination {
   id: string;

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Calendar, ArrowRight, Clock, Car, Train } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 interface Station {
   name: string;

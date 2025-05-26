@@ -26,11 +26,11 @@ import {
   Heart,
 } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 import {
   getDestinationById,
   getHotelById,
-} from '@/data/travelData';
+} from '../../data/travelData';
 
 export default function DetailsScreen() {
   const { id, type } = useLocalSearchParams();

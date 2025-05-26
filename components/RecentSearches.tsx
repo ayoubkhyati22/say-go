@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { MapPin, Clock, ArrowRight, X } from 'lucide-react-native';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from './../context/ThemeContext';
 
 interface RecentSearchesProps {
   onSearchSelect: (search: string) => void;

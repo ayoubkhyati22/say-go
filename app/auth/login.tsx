@@ -12,8 +12,8 @@ import {
 import { useRouter } from 'expo-router';
 import { Eye, EyeOff, LogIn, ArrowLeft } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@/context/ThemeContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function Login() {
   const [email, setEmail] = useState('');

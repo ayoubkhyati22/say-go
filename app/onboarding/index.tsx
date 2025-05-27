@@ -44,7 +44,7 @@ export default function Onboarding() {
     if (activeSlide < onboardingSlides.length - 1) {
       setActiveSlide(activeSlide + 1);
     } else {
-      router.replace('/auth/login');
+      router.replace('/(tabs)');
     }
   };
 
@@ -55,7 +55,7 @@ export default function Onboarding() {
   };
 
   const handleSkip = () => {
-    router.replace('/auth/login');
+    router.replace('/(tabs)');
   };
 
   const getButtonText = () => {

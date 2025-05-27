@@ -9,8 +9,7 @@ import {
   StatusBar,
   Image,
 } from 'react-native';
-import { Search } from '../../components/Search';
-import { MapPin, Calendar, Star, Navigation2, ChevronRight, Leaf, Brain as Train } from 'lucide-react-native';
+import { Star, Navigation2, ChevronRight, Leaf, Brain as Train } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -120,14 +119,10 @@ export default function ExploreScreen() {
         <View style={styles.headerContent}>
           <Text style={[styles.headerTitle, { color: colors.header.text }]}>Explore</Text>
           <Text style={[styles.headerSubtitle, { color: colors.header.text }]}>
-            Discover low-carbon destinations
+            Discover destinations
           </Text>
         </View>
         
-        <Search 
-          onSearch={handleSearch}
-          isLoading={isLoading}
-        />
       </View>
       
       <ScrollView style={styles.content}>

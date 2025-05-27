@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,12 +8,13 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  Image
+  Image,
+  Animated
 } from 'react-native';
 import { Search as SearchComponent } from '../../components/Search';
 import { RecentSearches } from '../../components/RecentSearches';
 import { JourneyCard } from '../../components/JourneyCard';
-import { BusFront, Calendar, ClockArrowDown, DollarSign, MapPin, TrainFront } from 'lucide-react-native';
+import { BusFront, Calendar, ClockArrowDown, DollarSign, MapPin, TrainFront, Mic } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 import { Journey } from '../../types';
@@ -30,7 +31,17 @@ export default function SearchScreen() {
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterType>(null);
   const [activeTab, setActiveTab] = useState<TabType>('transport');
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
   const { colors, isDarkMode } = useTheme();
+
+  // Animation values for voice waves
+  const waveAnimations = useRef([
+    new Animated.Value(0.3),
+    new Animated.Value(0.3),
+    new Animated.Value(0.3),
+    new Animated.Value(0.3),
+    new Animated.Value(0.3),
+  ]).current;
 
   const fromStation = searchResults[0]?.journey?.departureStation?.name || 'Undefined';
   const toStation = searchResults[0]?.journey?.arrivalStation?.name || 'Undefined';
@@ -127,6 +138,51 @@ export default function SearchScreen() {
     setActiveFilter(null); // Reset filter when switching tabs
   };
 
+  const handleVoicePress = () => {
+    setIsVoiceActive(true);
+    startWaveAnimation();
+    // Here you can add actual voice recognition logic
+    // For now, we'll simulate a 3-second voice session
+    setTimeout(() => {
+      setIsVoiceActive(false);
+      stopWaveAnimation();
+    }, 3000);
+  };
+
+  const startWaveAnimation = () => {
+    const createWaveAnimation = (animatedValue: Animated.Value, delay: number) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.timing(animatedValue, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: false,
+          }),
+          Animated.timing(animatedValue, {
+            toValue: 0.3,
+            duration: 500,
+            useNativeDriver: false,
+          }),
+        ]),
+        { iterations: -1 }
+      );
+    };
+
+    // Start animations with different delays for wave effect
+    waveAnimations.forEach((animation, index) => {
+      setTimeout(() => {
+        createWaveAnimation(animation, index * 100).start();
+      }, index * 100);
+    });
+  };
+
+  const stopWaveAnimation = () => {
+    waveAnimations.forEach(animation => {
+      animation.stopAnimation();
+      animation.setValue(0.3);
+    });
+  };
+
   const getTabStyle = (tabType: TabType) => {
     const isActive = activeTab === tabType;
     return [
@@ -167,6 +223,7 @@ export default function SearchScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.header.background} />
 
+      {/* Fixed Search Header */}
       <View style={[styles.searchHeader, { backgroundColor: colors.header.background }]}>
         <SearchComponent
           onSearch={handleSearch}
@@ -174,19 +231,75 @@ export default function SearchScreen() {
         />
       </View>
 
-      <ScrollView style={styles.content}>
+      {/* Content Area */}
+      <View style={styles.content}>
         {!hasPerformedSearch ? (
-          <RecentSearches onSearchSelect={handleSearchSelect} />
-        ) : isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={[styles.loadingText, { color: colors.text }]}>
-              Finding the best routes...
-            </Text>
-          </View>
+          <ScrollView style={styles.fullScrollView} contentContainerStyle={styles.beforeSearchContent}>
+            <RecentSearches onSearchSelect={handleSearchSelect} />
+            
+            {/* Welcome Section */}
+            <View style={styles.welcomeSection}>
+              {!isVoiceActive ? (
+                <>
+                  <View style={styles.welcomeImageContainer}>
+                    {/* <Image 
+                      source={{ uri: 'https://cdn-icons-png.freepik.com/256/8838/8838959.png' }}
+                      style={styles.welcomeImage}
+                      resizeMode="cover"
+                    /> */}
+                  </View>
+                  <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+                    Find Your Journey
+                  </Text>
+                  <Text style={[styles.welcomeSubtitle, { color: colors.secondaryText }]}>
+                    Search for trains and buses to discover the best travel options for your trip
+                  </Text>
+                  <TouchableOpacity 
+                    style={[styles.voiceButton, { backgroundColor: colors.primary }]}
+                    onPress={handleVoicePress}
+                    activeOpacity={0.8}
+                  >
+                    <Mic size={16} color="white" />
+                    <Text style={styles.voiceButtonText}>Voice Search</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <View style={styles.voiceAnimationContainer}>
+                  <View style={styles.voiceWavesContainer}>
+                    {waveAnimations.map((animation, index) => (
+                      <Animated.View
+                        key={index}
+                        style={[
+                          styles.voiceWave,
+                          {
+                            backgroundColor: colors.primary,
+                            height: animation.interpolate({
+                              inputRange: [0.3, 1],
+                              outputRange: [20, 60 + index * 8], // Different heights for each wave
+                            }),
+                            opacity: animation.interpolate({
+                              inputRange: [0.3, 1],
+                              outputRange: [0.4, 0.9],
+                            }),
+                          }
+                        ]}
+                      />
+                    ))}
+                  </View>
+                  <Text style={[styles.voiceText, { color: colors.text }]}>Listening...</Text>
+                  <Text style={[styles.voiceSubtext, { color: colors.secondaryText }]}>
+                    Speak your destination
+                  </Text>
+                </View>
+              )}
+            </View>
+            
+            <View style={{ height: 80 }} />
+          </ScrollView>
         ) : (
           <View style={styles.resultsContainer}>
-            <View style={styles.searchInfo}>
+            {/* Fixed Search Info and Filters */}
+            <View style={[styles.searchInfo, { backgroundColor: colors.background }]}>
               <Text style={[styles.resultsTitle, { color: colors.text }]}>Search Results</Text>
               <Text style={[styles.resultsSubtitle, { color: colors.secondaryText }]}>
                 {filteredResults.length} trips found  &nbsp;
@@ -221,13 +334,13 @@ export default function SearchScreen() {
               {/* Filter Pills - Only show for transport tab */}
               {activeTab === 'transport' && (
                 <View style={styles.pillsContainer}>
-                  <TouchableOpacity 
+                  {/* <TouchableOpacity 
                     style={getFilterStyle('cheapest')}
                     onPress={() => handleFilterPress('cheapest')}
                   >
                     <DollarSign size={16} color={getFilterTextColor('cheapest')} style={styles.pillIcon} />
                     <Text style={[styles.pillText, { color: getFilterTextColor('cheapest') }]}>Cheapest</Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
 
                   <TouchableOpacity 
                     style={getFilterStyle('fast')}
@@ -256,47 +369,60 @@ export default function SearchScreen() {
               )}
             </View>
 
-            <View style={styles.resultsList}>
-              {/* Show different content based on active tab */}
-              {activeTab === 'transport' ? (
-                filteredResults.length > 0 ? (
-                  filteredResults.map((journeyItem) => (
-                    <JourneyCard
-                      key={journeyItem.index}
-                      index={journeyItem.index}
-                      company={journeyItem.company}
-                      journey={journeyItem}
-                      isSaved={journeyItem.isSaved}
-                      onToggleSave={() => handleToggleSave(journeyItem.index)}
-                    />
-                  ))
+            {/* Scrollable Results List */}
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text style={[styles.loadingText, { color: colors.text }]}>
+                  Finding the best routes...
+                </Text>
+              </View>
+            ) : (
+              <ScrollView 
+                style={styles.resultsList}
+                showsVerticalScrollIndicator={true}
+                contentContainerStyle={styles.resultsScrollContent}
+              >
+                {/* Show different content based on active tab */}
+                {activeTab === 'transport' ? (
+                  filteredResults.length > 0 ? (
+                    filteredResults.map((journeyItem) => (
+                      <JourneyCard
+                        key={journeyItem.index}
+                        index={journeyItem.index}
+                        company={journeyItem.company}
+                        journey={journeyItem}
+                        isSaved={journeyItem.isSaved}
+                        onToggleSave={() => handleToggleSave(journeyItem.index)}
+                      />
+                    ))
+                  ) : (
+                    <View style={styles.noResultsContainer}>
+                      <Text style={[styles.noResultsText, { color: colors.text }]}>
+                        {activeFilter ? 'No journeys found matching this filter.' : 'No journeys found for this search.'}
+                      </Text>
+                      <Text style={[styles.noResultsSubtext, { color: colors.secondaryText }]}>
+                        {activeFilter ? 'Try selecting a different filter or clearing all filters.' : 'Try adjusting your search criteria.'}
+                      </Text>
+                    </View>
+                  )
                 ) : (
+                  // Stay-related tab content
                   <View style={styles.noResultsContainer}>
                     <Text style={[styles.noResultsText, { color: colors.text }]}>
-                      {activeFilter ? 'No journeys found matching this filter.' : 'No journeys found for this search.'}
+                      Stay-related results coming soon
                     </Text>
                     <Text style={[styles.noResultsSubtext, { color: colors.secondaryText }]}>
-                      {activeFilter ? 'Try selecting a different filter or clearing all filters.' : 'Try adjusting your search criteria.'}
+                      Hotels and accommodation options will be available here.
                     </Text>
                   </View>
-                )
-              ) : (
-                // Stay-related tab content
-                <View style={styles.noResultsContainer}>
-                  <Text style={[styles.noResultsText, { color: colors.text }]}>
-                    Stay-related results coming soon
-                  </Text>
-                  <Text style={[styles.noResultsSubtext, { color: colors.secondaryText }]}>
-                    Hotels and accommodation options will be available here.
-                  </Text>
-                </View>
-              )}
-            </View>
+                )}
+                <View style={{ height: 80 }} />
+              </ScrollView>
+            )}
           </View>
         )}
-
-        <View style={{ height: 80 }} />
-      </ScrollView>
+      </View>
       <Toast />
     </SafeAreaView>
   );
@@ -307,13 +433,110 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchHeader: {
-    paddingHorizontal: 10,
-    paddingTop: 50,
+    paddingHorizontal: 12,
+    paddingTop: 40,
     paddingBottom: 0,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   content: {
     flex: 1,
     paddingHorizontal: 10,
+  },
+  fullScrollView: {
+    flex: 1,
+  },
+  beforeSearchContent: {
+    flexGrow: 1,
+    paddingTop: 20,
+  },
+  welcomeSection: {
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  welcomeImageContainer: {
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  welcomeImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  welcomeTitle: {
+    fontSize: 28,
+    fontFamily: 'Inter-Bold',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
+    lineHeight: 24,
+    maxWidth: 300,
+    marginBottom: 24,
+  },
+  voiceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  voiceButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    marginLeft: 8,
+  },
+  voiceAnimationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 200,
+    paddingVertical: 40,
+  },
+  voiceWavesContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    height: 80,
+    marginBottom: 30,
+  },
+  voiceWave: {
+    width: 6,
+    marginHorizontal: 3,
+    borderRadius: 3,
+    minHeight: 20,
+  },
+  voiceText: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    marginBottom: 8,
+  },
+  voiceSubtext: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
   },
   loadingContainer: {
     flex: 1,
@@ -327,10 +550,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
   },
   resultsContainer: {
+    flex: 1,
     marginTop: 16,
   },
   searchInfo: {
-    marginBottom: 16,
+    paddingBottom: 16,
+    // Add shadow or border if needed to separate from scrollable content
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 1,
   },
   resultsTitle: {
     fontSize: 22,
@@ -345,8 +579,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 16,
     marginBottom: 8,
-    // borderBottomWidth: 1,
-    // borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   tab: {
     flex: 1,
@@ -383,7 +615,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
   },
   resultsList: {
-    marginBottom: 16,
+    flex: 1,
+  },
+  resultsScrollContent: {
+    paddingBottom: 20,
   },
   noResultsContainer: {
     alignItems: 'center',

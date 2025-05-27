@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 import { Journey, JourneyDetails } from '../../types';
 import { searchTravelOptions } from '../../services/api';
+import { UpcommingTrips } from '@/components/UpcommingTrips';
 
 
 export default function HomeScreen() {
@@ -107,7 +108,7 @@ export default function HomeScreen() {
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.header.background} />
 
       <View style={[styles.header, { backgroundColor: colors.header.background }]}>
-        <Image source={isDarkMode ? images.royaumeMaroc.dark : images.royaumeMaroc.light} />
+        <Image style={{width:100, height:50}} source={isDarkMode ? images.royaumeMaroc.dark : images.royaumeMaroc.light} />
 
         <View style={styles.headerContent}>
           <Text style={[styles.headerTitle, { color: colors.header.text }]}>SayGo</Text>
@@ -121,7 +122,7 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView style={styles.content}>
-        <RecentSearches onSearchSelect={handleSearchSelect} />
+        <UpcommingTrips onSearchSelect={handleSearchSelect} />
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Partners</Text>
@@ -191,7 +192,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    backgroundImage: `url(${require('../../assets/images/travel.jpg')})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   },

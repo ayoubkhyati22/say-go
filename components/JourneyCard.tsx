@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useState, useRef, useMemo } from 'react';
-import { BookmarkCheck, Bookmark, Clock, TrainFront, BusFront } from 'lucide-react-native';
+import { BookmarkCheck, Bookmark, Clock, TrainFront, BusFront, CirclePlus } from 'lucide-react-native';
 import { Journey } from '../types';
 import { useTheme } from './../context/ThemeContext';
 import Animated, { 
@@ -127,14 +127,14 @@ export function JourneyCard({ journey, company, isSaved, onToggleSave }: Journey
       ),
       justifyContent: 'center',
       alignItems: 'center',
-      minWidth: 80,
+      minWidth: 70,
     };
   });
 
   const priceTextStyle = useAnimatedStyle(() => {
     return {
       fontFamily: 'Inter-Bold',
-      fontSize: 16,
+      fontSize: 14,
       color: interpolateColor(
         isDarkMode ? 1 : 0,
         [0, 1],
@@ -239,9 +239,9 @@ export function JourneyCard({ journey, company, isSaved, onToggleSave }: Journey
           onPress={onToggleSave}
         >
           {isSaved ? (
-            <BookmarkCheck size={20} color={colors.accent} />
+            <CirclePlus size={20} color={colors.accent} />
           ) : (
-            <Bookmark size={20} color={colors.secondaryText} />
+            <CirclePlus size={20} color={colors.secondaryText} />
           )}
         </TouchableOpacity>
       </TouchableOpacity>

@@ -60,14 +60,12 @@ export default function SearchScreen() {
         break;
       case 'train':
         filtered = filtered.filter(item => 
-          item.campany.toLowerCase() === 'oncf' || 
-          item.journey.trainNumber !== undefined
+          item.company === 'oncf'
         );
         break;
       case 'bus':
         filtered = filtered.filter(item => 
-          item.campany.toLowerCase() !== 'oncf' && 
-          item.journey.trainNumber === undefined
+          item.company !== 'oncf'
         );
         break;
       default:
@@ -266,7 +264,7 @@ export default function SearchScreen() {
                     <JourneyCard
                       key={journeyItem.index}
                       index={journeyItem.index}
-                      campany={journeyItem.campany}
+                      company={journeyItem.company}
                       journey={journeyItem}
                       isSaved={journeyItem.isSaved}
                       onToggleSave={() => handleToggleSave(journeyItem.index)}

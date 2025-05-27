@@ -18,31 +18,35 @@ export default function HomeScreen() {
   const images = useMemo(() => {
     return {
       royaumeMaroc: {
-        light: require('../../assets/images/royaume-maroc.svg'),
-        dark: require('../../assets/images/royaume-maroc.svg')
+        light: require('../../assets/images/png/royaume-maroc.png'),
+        dark: require('../../assets/images/png/royaume-maroc.png')
       },
       oncf: {
-        light: require('../../assets/images/oncf.svg'),
-        dark: require('../../assets/images/oncf-dark.svg')
+        light: require('../../assets/images/png/oncf.png'),
+        dark: require('../../assets/images/png/oncf-dark.png')
       },
       ctm: {
-        light: require('../../assets/images/ctm.svg'),
-        dark: require('../../assets/images/ctm-dark.svg')
+        light: require('../../assets/images/png/ctm.png'),
+        dark: require('../../assets/images/png/ctm-dark.png')
       },
       booking: {
-        light: require('../../assets/images/booking.svg'),
-        dark: require('../../assets/images/booking-dark.svg')
+        light: require('../../assets/images/png/booking.png'),
+        dark: require('../../assets/images/png/booking-dark.png')
       },
       airbnb: {
-        light: require('../../assets/images/airbnb.svg'),
-        dark: require('../../assets/images/airbnb-dark.svg')
+        light: require('../../assets/images/png/airbnb.png'),
+        dark: require('../../assets/images/png/airbnb-dark.png')
+      },
+      markoub: {
+        light: require('../../assets/images/png/markoub.png'),
+        dark: require('../../assets/images/png/markoub-dark.png')
       }
     };
   }, []);
 
   const [journeys] = useState<Array<Journey & { isSaved: boolean }>>([
     {
-      campany: "oncf",
+      company: "oncf",
       index: 1,
       journey: {
         departureTime: "08:30",
@@ -68,16 +72,16 @@ export default function HomeScreen() {
     setIsLoading(true);
     try {
       const journeys = await searchTravelOptions(text);
-      
+
       // Update with isSaved property for each journey
       const journeysWithSaveState = journeys.map(journey => ({
         ...journey,
         isSaved: false // Default state
       }));
-      
+
       // You could store these in state if needed
       // setSearchResults(journeysWithSaveState);
-      
+
       // Navigate to search results
       router.push({
         pathname: '/search',
@@ -89,7 +93,7 @@ export default function HomeScreen() {
       setIsLoading(false);
     }
   };
-  
+
   const handleToggleSave = (id: string) => {
     console.log('Toggling save for journey:', id);
   };
@@ -122,26 +126,38 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Partners</Text>
           <View style={styles.partnersContainer}>
-            <Image
-              source={isDarkMode ? images.oncf.dark : images.oncf.light}
-              style={styles.partnerLogo}
-              resizeMode="contain"
-            />
-            <Image
-              source={isDarkMode ? images.ctm.dark : images.ctm.light}
-              style={styles.partnerLogo}
-              resizeMode="contain"
-            />
-            <Image
-              source={isDarkMode ? images.booking.dark : images.booking.light}
-              style={styles.partnerLogo}
-              resizeMode="contain"
-            />
-            <Image
-              source={isDarkMode ? images.airbnb.dark : images.airbnb.light}
-              style={styles.partnerLogo}
-              resizeMode="contain"
-            />
+            {/* First row: ONCF, CTM, Markoub */}
+            <View style={styles.partnerRow}>
+              <Image
+                source={isDarkMode ? images.oncf.dark : images.oncf.light}
+                style={styles.partnerLogo}
+                resizeMode="contain"
+              />
+              <Image
+                source={isDarkMode ? images.ctm.dark : images.ctm.light}
+                style={styles.partnerLogo}
+                resizeMode="contain"
+              />
+              <Image
+                source={isDarkMode ? images.markoub.dark : images.markoub.light}
+                style={styles.partnerLogo}
+                resizeMode="contain"
+              />
+            </View>
+
+            {/* Second row: Booking, Airbnb */}
+            <View style={styles.partnerRow}>
+              <Image
+                source={isDarkMode ? images.booking.dark : images.booking.light}
+                style={styles.partnerLogo}
+                resizeMode="contain"
+              />
+              <Image
+                source={isDarkMode ? images.airbnb.dark : images.airbnb.light}
+                style={styles.partnerLogo}
+                resizeMode="contain"
+              />
+            </View>
           </View>
         </View>
 
@@ -150,7 +166,7 @@ export default function HomeScreen() {
 
           {journeys.map((journey, index) => (
             <JourneyCard
-              campany={journey.campany}
+              company={journey.company}
               journey={journey}
               index={index}
               isSaved={journey.isSaved}
@@ -207,14 +223,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   partnersContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
     paddingHorizontal: 4,
   },
+  partnerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 12,
+  },
   partnerLogo: {
-    width: 70,
+    width: 100,
     height: 50,
   },
 });

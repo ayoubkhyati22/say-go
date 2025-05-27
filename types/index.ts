@@ -16,7 +16,7 @@ export interface JourneyDetails {
 }
 
 export interface Journey {
-  campany: string;
+  company: string;
   index: number;
   journey: JourneyDetails;
 }

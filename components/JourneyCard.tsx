@@ -12,13 +12,13 @@ import Animated, {
 
 interface JourneyCardProps {
   journey: Journey;
-  campany: string;
+  company: string;
   index: number;
   isSaved: boolean;
   onToggleSave: () => void;
 }
 
-export function JourneyCard({ journey, campany, isSaved, onToggleSave }: JourneyCardProps) {
+export function JourneyCard({ journey, company, isSaved, onToggleSave }: JourneyCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const expandAnimation = useSharedValue(0);
   const { colors, isDarkMode } = useTheme();
@@ -26,12 +26,12 @@ export function JourneyCard({ journey, campany, isSaved, onToggleSave }: Journey
   const images = useMemo(() => {
     return {
       oncf: {
-        light: require('../assets/images/oncf.svg'),
-        dark: require('../assets/images/oncf-dark.svg')
+        light: require('../assets/images/png/oncf.png'),
+        dark: require('../assets/images/png/oncf-dark.png')
       },
-      ctm: {
-        light: require('../assets/images/ctm.svg'),
-        dark: require('../assets/images/ctm-dark.svg')
+      markoub: {
+        light: require('../assets/images/png/markoub.png'),
+        dark: require('../assets/images/png/markoub-dark.png')
       }
     };
   }, []);
@@ -227,9 +227,9 @@ export function JourneyCard({ journey, campany, isSaved, onToggleSave }: Journey
         </View>
 
         <Image 
-          source={campany === 'ctm' 
-            ? (isDarkMode ? images.ctm.dark : images.ctm.light)
-            : (isDarkMode ? images.oncf.dark : images.oncf.light)
+          source={company === 'oncf' 
+            ? (isDarkMode ? images.oncf.dark : images.oncf.light)
+            : (isDarkMode ? images.markoub.dark : images.markoub.light)
           }
           style={styles.companyLogo}
         />
@@ -259,13 +259,13 @@ export function JourneyCard({ journey, campany, isSaved, onToggleSave }: Journey
 
         <View style={styles.detailRow}>
           <View style={styles.detailItem}>
-            {campany === 'oncf' ? (
+            {company === 'oncf' ? (
               <TrainFront size={16} color={colors.accent} />
             ) : (
               <BusFront size={16} color={colors.accent} />
             )}
             <Animated.Text style={detailTextStyle}>
-              {campany === 'oncf' ? `Train ${journey.journey.trainNumber}` : `Bus ${journey.journey.trainNumber}`}
+              {company === 'oncf' ? `Train ${journey.journey.trainNumber}` : `Bus ${journey.journey.trainNumber}`}
             </Animated.Text>
           </View>
 
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   companyLogo: {
-    width: 50,
+    width: 60,
     height: 20,
     resizeMode: 'contain',
     marginRight: 8,

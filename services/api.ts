@@ -30,7 +30,7 @@ export async function searchTravelOptions(message: string): Promise<Journey[]> {
 function getMockJourneys(): Journey[] {
   return [
     {
-      campany: "oncf",
+      company: "oncf",
       index: 1,
       journey: {
         departureTime: "08:30",

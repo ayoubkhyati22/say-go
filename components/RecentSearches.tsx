@@ -11,7 +11,7 @@ export function RecentSearches({ onSearchSelect }: RecentSearchesProps) {
   
   // Mock data for recent searches
   const recentSearches = [
-    'Casa Voyageurs to Tanger Ville Tomorrow',
+    'Casablanca to Tanger Tomorrow',
     'Rabat Agdal to Fes 29 mai'
   ];
 

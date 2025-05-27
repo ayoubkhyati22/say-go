@@ -32,7 +32,7 @@ interface JourneyDetails {
 }
 
 interface Journey {
-  campany: string;
+  company: string;
   index: number;
   journey: JourneyDetails;
 }
@@ -58,7 +58,7 @@ export default function ResultsScreen() {
       // Sample search results
       const results = [
         {
-          campany: "oncf",
+          company: "oncf",
           index: 1,
           journey: {
             departureTime: "08:30",
@@ -79,7 +79,7 @@ export default function ResultsScreen() {
           isSaved: false
         },
         {
-          campany: "oncf",
+          company: "oncf",
           index: 2,
           journey: {
             departureTime: "08:30",
@@ -187,7 +187,7 @@ export default function ResultsScreen() {
           <View style={styles.resultsList}>
             {searchResults.map((journey) => (
               <JourneyCard 
-                campany={journey.campany}
+                company={journey.company}
                 key={journey.index}
                 journey={journey}
                 index={journey.index}

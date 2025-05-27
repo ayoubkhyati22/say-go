@@ -4,6 +4,13 @@ const path = require('path');
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
+// Add SVG transformer configuration
+config.transformer.babelTransformerPath = require.resolve('react-native-svg-transformer');
+
+// Add support for SVG files
+config.resolver.assetExts = config.resolver.assetExts.filter(ext => ext !== 'svg');
+config.resolver.sourceExts = [...config.resolver.sourceExts, 'svg'];
+
 // Add path aliases resolution
 config.resolver.alias = {
   '@': path.resolve(__dirname, './'),

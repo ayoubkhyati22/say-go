@@ -108,7 +108,7 @@ export default function HomeScreen() {
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.header.background} />
 
       <View style={[styles.header, { backgroundColor: colors.header.background }]}>
-        <Image style={{width:100, height:50}} source={isDarkMode ? images.royaumeMaroc.dark : images.royaumeMaroc.light} />
+        {/* <Image style={{width:100, height:50}} source={isDarkMode ? images.royaumeMaroc.dark : images.royaumeMaroc.light} /> */}
 
         <View style={styles.headerContent}>
           <Text style={[styles.headerTitle, { color: colors.header.text }]}>SayGo</Text>
@@ -126,7 +126,7 @@ export default function HomeScreen() {
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Partners</Text>
-          <View style={styles.partnersContainer}>
+          <View style={[styles.partnersContainer, { backgroundColor: colors.card, borderRadius:12 }]}>
             {/* First row: ONCF, CTM, Markoub */}
             <View style={styles.partnerRow}>
               <Image

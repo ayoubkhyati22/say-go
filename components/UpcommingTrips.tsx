@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { MapPin, Clock, ArrowRight, X, ChevronRight } from 'lucide-react-native';
+import { MapPin, Clock, ArrowRight, X, ChevronRight, TrainFront, House } from 'lucide-react-native';
 import { useTheme } from './../context/ThemeContext';
 
 interface UpcommingTripsProps {
@@ -68,11 +68,13 @@ export function UpcommingTrips({ onSearchSelect }: UpcommingTripsProps) {
                 <View style={styles.logoContainer}>
                   {trip.company === 'oncf' ? (
                     <View style={[styles.logoBackground, { backgroundColor: '#FF6B35' }]}>
-                      <Text style={styles.logoText}>ONCF</Text>
+                      <TrainFront color={'white'}></TrainFront>
+                      {/* <Text style={styles.logoText}>ONCF</Text> */}
                     </View>
                   ) : (
                     <View style={[styles.logoBackground, { backgroundColor: '#003580' }]}>
-                      <Text style={styles.logoTextBooking}>B.</Text>
+                      <House color={'white'}></House>
+                      {/* <Text style={styles.logoTextBooking}>B.</Text> */}
                     </View>
                   )}
                 </View>

@@ -204,7 +204,7 @@ export default function BookingsScreen() {
                   
                   <View style={[styles.tripMetrics, { borderTopColor: colors.border }]}>
                     <View style={styles.metricItem}>
-                      <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Campany</Text>
+                      <Text style={[styles.metricLabel, { color: colors.secondaryText }]}>Company</Text>
                       <Text style={[styles.metricValue, { color: colors.text }]}>{trip.journeyDetails.co2Emission}</Text>
                     </View>
                     

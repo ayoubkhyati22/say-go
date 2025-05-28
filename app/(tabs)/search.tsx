@@ -1,3 +1,6 @@
+// Simple voice input simulation - works without any external dependencies
+// This version simulates voice input and shows real-time text updates
+
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   StyleSheet,
@@ -8,13 +11,14 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  Image,
-  Animated
+  Animated,
+  Alert,
+  TextInput
 } from 'react-native';
 import { Search as SearchComponent } from '../../components/Search';
 import { RecentSearches } from '../../components/RecentSearches';
 import { JourneyCard } from '../../components/JourneyCard';
-import { BusFront, Calendar, ClockArrowDown, DollarSign, MapPin, TrainFront, Mic } from 'lucide-react-native';
+import { BusFront, Calendar, ClockArrowDown, DollarSign, MapPin, TrainFront, Mic, MicOff, Keyboard } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 import { Journey } from '../../types';
@@ -31,8 +35,17 @@ export default function SearchScreen() {
   const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterType>(null);
   const [activeTab, setActiveTab] = useState<TabType>('transport');
+  
+  // Voice simulation states
   const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceText, setVoiceText] = useState('');
+  const [partialResults, setPartialResults] = useState('');
+  const [inputMode, setInputMode] = useState<'voice' | 'text'>('voice');
+  
   const { colors, isDarkMode } = useTheme();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const textInputRef = useRef<TextInput>(null);
 
   // Animation values for voice waves
   const waveAnimations = useRef([
@@ -43,9 +56,64 @@ export default function SearchScreen() {
     new Animated.Value(0.3),
   ]).current;
 
+  // Predefined voice simulation responses
+  const voiceResponses = [
+    {
+      partials: ['Casa...', 'Casablanca...', 'Casablanca to...', 'Casablanca to Rab...'],
+      final: 'Casablanca to Rabat'
+    },
+    {
+      partials: ['Mar...', 'Marrakech...', 'Marrakech to...', 'Marrakech to Fez...'],
+      final: 'Marrakech to Fez'
+    },
+    {
+      partials: ['Tan...', 'Tangier...', 'Tangier to...', 'Tangier to Casa...'],
+      final: 'Tangier to Casablanca'
+    },
+    {
+      partials: ['Rab...', 'Rabat...', 'Rabat to...', 'Rabat to Mek...'],
+      final: 'Rabat to Meknes'
+    }
+  ];
+
   const fromStation = searchResults[0]?.journey?.departureStation?.name || 'Undefined';
   const toStation = searchResults[0]?.journey?.arrivalStation?.name || 'Undefined';
   const date = searchResults[0]?.journey?.departureDate || 'Today';
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Simulate voice recognition with realistic text updates
+  const simulateVoiceRecognition = () => {
+    const randomResponse = voiceResponses[Math.floor(Math.random() * voiceResponses.length)];
+    const { partials, final } = randomResponse;
+    
+    let index = 0;
+    const updateText = () => {
+      if (index < partials.length && isListening) {
+        setPartialResults(partials[index]);
+        index++;
+        timeoutRef.current = setTimeout(updateText, 800);
+      } else if (index >= partials.length && isListening) {
+        setVoiceText(final);
+        setPartialResults('');
+        
+        // Auto-search after getting final result
+        setTimeout(() => {
+          handleSearch(final);
+          stopVoiceRecognition();
+        }, 1500);
+      }
+    };
+    
+    // Start the simulation
+    timeoutRef.current = setTimeout(updateText, 500);
+  };
 
   // Helper function to parse duration string to minutes
   const parseDurationToMinutes = (duration: string): number => {
@@ -80,7 +148,6 @@ export default function SearchScreen() {
         );
         break;
       default:
-        // No filter applied, return original order
         break;
     }
 
@@ -88,11 +155,11 @@ export default function SearchScreen() {
   }, [searchResults, activeFilter]);
 
   const handleSearch = useCallback(async (text: string) => {
-    if (isLoading) return; // Prevent multiple simultaneous searches
+    if (isLoading) return;
 
     setIsLoading(true);
     setHasPerformedSearch(true);
-    setActiveFilter(null); // Reset filter when performing new search
+    setActiveFilter(null);
 
     try {
       const results = await searchTravelOptions(text);
@@ -101,6 +168,13 @@ export default function SearchScreen() {
         isSaved: false
       }));
       setSearchResults(resultsWithSaveState);
+      
+      Toast.show({
+        type: 'success',
+        text1: 'Search Complete',
+        text2: `Found ${results.length} travel options`,
+        position: 'bottom'
+      });
     } catch (error) {
       console.error('Search error:', error);
       Toast.show({
@@ -135,22 +209,77 @@ export default function SearchScreen() {
 
   const handleTabPress = (tabType: TabType) => {
     setActiveTab(tabType);
-    setActiveFilter(null); // Reset filter when switching tabs
+    setActiveFilter(null);
   };
 
   const handleVoicePress = () => {
-    setIsVoiceActive(true);
-    startWaveAnimation();
-    // Here you can add actual voice recognition logic
-    // For now, we'll simulate a 3-second voice session
-    setTimeout(() => {
+    if (isVoiceActive) {
+      stopVoiceRecognition();
+    } else {
+      startVoiceRecognition();
+    }
+  };
+
+  const startVoiceRecognition = () => {
+    try {
+      setIsVoiceActive(true);
+      setIsListening(true);
+      setVoiceText('');
+      setPartialResults('');
+      setInputMode('voice');
+      startWaveAnimation();
+      
+      // Start the voice simulation
+      simulateVoiceRecognition();
+      
+    } catch (error) {
+      console.error('Failed to start voice recognition:', error);
       setIsVoiceActive(false);
       stopWaveAnimation();
-    }, 3000);
+      
+      Toast.show({
+        type: 'error',
+        text1: 'Voice Recognition Failed',
+        text2: 'Unable to start voice recognition. Please try again.',
+        position: 'bottom'
+      });
+    }
+  };
+
+  const stopVoiceRecognition = () => {
+    try {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      setIsVoiceActive(false);
+      setIsListening(false);
+      stopWaveAnimation();
+      setPartialResults('');
+      setVoiceText('');
+    } catch (error) {
+      console.error('Failed to stop voice recognition:', error);
+    }
+  };
+
+  const handleTextInputMode = () => {
+    setInputMode('text');
+    setIsVoiceActive(true);
+    setTimeout(() => {
+      textInputRef.current?.focus();
+    }, 100);
+  };
+
+  const handleTextSubmit = (text: string) => {
+    if (text.trim()) {
+      handleSearch(text);
+      setIsVoiceActive(false);
+      setInputMode('voice');
+    }
   };
 
   const startWaveAnimation = () => {
-    const createWaveAnimation = (animatedValue: Animated.Value, delay: number) => {
+    const createWaveAnimation = (animatedValue: Animated.Value) => {
       return Animated.loop(
         Animated.sequence([
           Animated.timing(animatedValue, {
@@ -168,10 +297,9 @@ export default function SearchScreen() {
       );
     };
 
-    // Start animations with different delays for wave effect
     waveAnimations.forEach((animation, index) => {
       setTimeout(() => {
-        createWaveAnimation(animation, index * 100).start();
+        createWaveAnimation(animation).start();
       }, index * 100);
     });
   };
@@ -242,11 +370,7 @@ export default function SearchScreen() {
               {!isVoiceActive ? (
                 <>
                   <View style={styles.welcomeImageContainer}>
-                    {/* <Image 
-                      source={{ uri: 'https://cdn-icons-png.freepik.com/256/8838/8838959.png' }}
-                      style={styles.welcomeImage}
-                      resizeMode="cover"
-                    /> */}
+                    {/* Welcome image placeholder */}
                   </View>
                   <Text style={[styles.welcomeTitle, { color: colors.text }]}>
                     Find Your Journey
@@ -254,16 +378,29 @@ export default function SearchScreen() {
                   <Text style={[styles.welcomeSubtitle, { color: colors.secondaryText }]}>
                     Search for trains and buses to discover the best travel options for your trip
                   </Text>
-                  <TouchableOpacity 
-                    style={[styles.voiceButton, { backgroundColor: colors.primary }]}
-                    onPress={handleVoicePress}
-                    activeOpacity={0.8}
-                  >
-                    <Mic size={16} color="white" />
-                    <Text style={styles.voiceButtonText}>Voice Search</Text>
-                  </TouchableOpacity>
+                  
+                  {/* Voice and Text Input Buttons */}
+                  <View style={styles.inputButtonsContainer}>
+                    <TouchableOpacity 
+                      style={[styles.voiceButton, { backgroundColor: colors.primary }]}
+                      onPress={handleVoicePress}
+                      activeOpacity={0.8}
+                    >
+                      <Mic size={16} color="white" />
+                      <Text style={styles.voiceButtonText}>Voice Search</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                      style={[styles.textButton, { backgroundColor: colors.secondary || colors.primary }]}
+                      onPress={handleTextInputMode}
+                      activeOpacity={0.8}
+                    >
+                      <Keyboard size={16} color="white" />
+                      <Text style={styles.voiceButtonText}>Type Search</Text>
+                    </TouchableOpacity>
+                  </View>
                 </>
-              ) : (
+              ) : inputMode === 'voice' ? (
                 <View style={styles.voiceAnimationContainer}>
                   <View style={styles.voiceWavesContainer}>
                     {waveAnimations.map((animation, index) => (
@@ -272,10 +409,10 @@ export default function SearchScreen() {
                         style={[
                           styles.voiceWave,
                           {
-                            backgroundColor: colors.primary,
+                            backgroundColor: isListening ? colors.primary : colors.secondaryText,
                             height: animation.interpolate({
                               inputRange: [0.3, 1],
-                              outputRange: [20, 60 + index * 8], // Different heights for each wave
+                              outputRange: [20, 60 + index * 8],
                             }),
                             opacity: animation.interpolate({
                               inputRange: [0.3, 1],
@@ -286,10 +423,73 @@ export default function SearchScreen() {
                       />
                     ))}
                   </View>
-                  <Text style={[styles.voiceText, { color: colors.text }]}>Listening...</Text>
-                  <Text style={[styles.voiceSubtext, { color: colors.secondaryText }]}>
-                    Speak your destination
+                  
+                  <Text style={[styles.voiceText, { color: colors.text }]}>
+                    {isListening ? 'Listening...' : 'Ready to listen'}
                   </Text>
+                  
+                  <Text style={[styles.voiceSubtext, { color: colors.secondaryText }]}>
+                    {isListening ? 'Speak your destination' : 'Tap to start listening'}
+                  </Text>
+
+                  {/* Real-time text display */}
+                  {(partialResults || voiceText) && (
+                    <View style={[styles.voiceTextContainer, { backgroundColor: colors.primary + '10' }]}>
+                      <Text style={[styles.voiceResultText, { color: colors.text }]}>
+                        {voiceText || partialResults}
+                      </Text>
+                      {partialResults && !voiceText && (
+                        <Text style={[styles.partialResultsLabel, { color: colors.secondaryText }]}>
+                          (processing...)
+                        </Text>
+                      )}
+                    </View>
+                  )}
+
+                  {/* Stop button */}
+                  <TouchableOpacity 
+                    style={[styles.stopVoiceButton, { backgroundColor: colors.error || '#ef4444' }]}
+                    onPress={handleVoicePress}
+                    activeOpacity={0.8}
+                  >
+                    <MicOff size={16} color="white" />
+                    <Text style={styles.voiceButtonText}>Stop</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                // Text Input Mode
+                <View style={styles.textInputContainer}>
+                  <Text style={[styles.voiceText, { color: colors.text }]}>
+                    Type your destination
+                  </Text>
+                  <Text style={[styles.voiceSubtext, { color: colors.secondaryText }]}>
+                    Enter your travel route
+                  </Text>
+                  
+                  <TextInput
+                    ref={textInputRef}
+                    style={[styles.textInput, { 
+                      backgroundColor: colors.primary + '10',
+                      color: colors.text,
+                      borderColor: colors.primary 
+                    }]}
+                    placeholder="e.g. Casablanca to Rabat"
+                    placeholderTextColor={colors.secondaryText}
+                    onSubmitEditing={(e) => handleTextSubmit(e.nativeEvent.text)}
+                    returnKeyType="search"
+                    autoFocus={true}
+                  />
+                  
+                  <TouchableOpacity 
+                    style={[styles.stopVoiceButton, { backgroundColor: colors.secondaryText }]}
+                    onPress={() => {
+                      setIsVoiceActive(false);
+                      setInputMode('voice');
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.voiceButtonText}>Cancel</Text>
+                  </TouchableOpacity>
                 </View>
               )}
             </View>
@@ -298,7 +498,7 @@ export default function SearchScreen() {
           </ScrollView>
         ) : (
           <View style={styles.resultsContainer}>
-            {/* Fixed Search Info and Filters */}
+            {/* Results section */}
             <View style={[styles.searchInfo, { backgroundColor: colors.background }]}>
               <Text style={[styles.resultsTitle, { color: colors.text }]}>Search Results</Text>
               <Text style={[styles.resultsSubtitle, { color: colors.secondaryText }]}>
@@ -310,7 +510,6 @@ export default function SearchScreen() {
                 </Text>
               </Text>
 
-              {/* Tabs Section */}
               <View style={styles.tabsContainer}>
                 <TouchableOpacity 
                   style={getTabStyle('transport')}
@@ -331,17 +530,8 @@ export default function SearchScreen() {
                 </TouchableOpacity>
               </View>
 
-              {/* Filter Pills - Only show for transport tab */}
               {activeTab === 'transport' && (
                 <View style={styles.pillsContainer}>
-                  {/* <TouchableOpacity 
-                    style={getFilterStyle('cheapest')}
-                    onPress={() => handleFilterPress('cheapest')}
-                  >
-                    <DollarSign size={16} color={getFilterTextColor('cheapest')} style={styles.pillIcon} />
-                    <Text style={[styles.pillText, { color: getFilterTextColor('cheapest') }]}>Cheapest</Text>
-                  </TouchableOpacity> */}
-
                   <TouchableOpacity 
                     style={getFilterStyle('fast')}
                     onPress={() => handleFilterPress('fast')}
@@ -369,7 +559,6 @@ export default function SearchScreen() {
               )}
             </View>
 
-            {/* Scrollable Results List */}
             {isLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={colors.primary} />
@@ -383,7 +572,6 @@ export default function SearchScreen() {
                 showsVerticalScrollIndicator={true}
                 contentContainerStyle={styles.resultsScrollContent}
               >
-                {/* Show different content based on active tab */}
                 {activeTab === 'transport' ? (
                   filteredResults.length > 0 ? (
                     filteredResults.map((journeyItem) => (
@@ -407,7 +595,6 @@ export default function SearchScreen() {
                     </View>
                   )
                 ) : (
-                  // Stay-related tab content
                   <View style={styles.noResultsContainer}>
                     <Text style={[styles.noResultsText, { color: colors.text }]}>
                       Stay-related results coming soon
@@ -466,13 +653,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-  welcomeImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
   welcomeTitle: {
     fontSize: 28,
     fontFamily: 'Inter-Bold',
@@ -487,7 +667,29 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     marginBottom: 24,
   },
+  inputButtonsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
   voiceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  textButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -509,11 +711,35 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     marginLeft: 8,
   },
+  stopVoiceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
   voiceAnimationContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 200,
+    minHeight: 300,
     paddingVertical: 40,
+  },
+  textInputContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 300,
+    paddingVertical: 40,
+    width: '100%',
   },
   voiceWavesContainer: {
     flexDirection: 'row',
@@ -537,6 +763,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  voiceTextContainer: {
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 16,
+    minWidth: 280,
+    maxWidth: 320,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  voiceResultText: {
+    fontSize: 18,
+    fontFamily: 'Inter-Medium',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  partialResultsLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  textInput: {
+    width: '100%',
+    maxWidth: 320,
+    height: 50,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    borderWidth: 2,
+    marginVertical: 16,
+    textAlign: 'center',
   },
   loadingContainer: {
     flex: 1,
@@ -555,7 +816,6 @@ const styles = StyleSheet.create({
   },
   searchInfo: {
     paddingBottom: 16,
-    // Add shadow or border if needed to separate from scrollable content
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
